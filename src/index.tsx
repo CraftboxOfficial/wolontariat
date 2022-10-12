@@ -10,6 +10,8 @@ import './index.css';
 import { Router } from 'solid-app-router';
 import { FirebaseProvider } from 'solid-firebase';
 import { App } from "./App";
+import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
+import { connectAuthEmulator, getAuth } from "firebase/auth";
 
 const firebaseConfig = {
 	apiKey: "AIzaSyCd2ypWuBLx-9EeUm8L9aJEGOn4cA1jEAc",
@@ -29,8 +31,13 @@ const firebaseConfig = {
 
 
 // Initialize Firebase
-// const app = initializeApp(firebaseConfig);
-// const analytics = getAnalytics(app);
+const app = initializeApp(firebaseConfig);
+
+const functions = getFunctions(app)
+const auth = getAuth(app)
+
+connectFunctionsEmulator(functions, "localhost", 5001)
+connectAuthEmulator(auth, "localhost")
 
 
 render(() => (
