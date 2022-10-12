@@ -5,11 +5,13 @@ import styles from './App.module.css';
 import { Route, Routes } from "solid-app-router";
 import { styled } from 'solid-styled-components';
 import { HomePage } from './pages/HomePage';
+import { Topbar } from './components/Topbar';
 
 export const App: Component = () => {
 
   return (
     <AppStyle>
+      <Topbar />
       <Routes>
         <Route path="/" component={HomePage} />
       </Routes>
