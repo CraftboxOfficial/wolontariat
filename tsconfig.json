@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "types": [
+      "vite/client",
+      "firebase/analytics",
+      "firebase/app",
+      "firebase/app-check",
+      "firebase/auth",
+      "firebase/compat",
+      "firebase/database",
+      "firebase/firestore",
+      "firebase/installations",
+      "firebase/messaging",
+      "firebase/performance",
+      "firebase/remote-config",
+      "firebase/storage",
+      "firebase/functions"
+    ],
+    "noEmit": true,
+    "isolatedModules": true
+  }
+}
