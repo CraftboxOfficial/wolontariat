@@ -21,3 +21,10 @@ code {
   margin: 20px;
   padding: 5px;
 }
+
+#map {
+  height: 500px;
+  width: 500px;
+  margin: 0;
+  padding: 0;
+}

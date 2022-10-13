@@ -1,7 +1,8 @@
 import logo from './logo.svg';
 import styles from './App.module.css';
-import {createSignal, onMount, For} from 'solid-js'
+import {createSignal, onMount, For, Show} from 'solid-js'
 import {supabase} from './supabaseClient'
+import GoogleMap from './components/GoogleMap';
 
 function App() {
   const [initialData, setInitialData] = createSignal([]);
@@ -66,7 +67,7 @@ function App() {
 
   const searchHandler = async () => {
     setIsLoading(true);
-    await searchPost(searchText()).then((res) => {
+    await searchPostLocally(searchText()).then((res) => {
       console.log(res);
       const data = res;
       let dataObject = [];
@@ -82,7 +83,10 @@ function App() {
 
   return (
     <div>
-      {isLoading() && <h1>Loading...</h1>}
+      <Show when={isLoading()}>
+        <h1>Loading...</h1>
+      </Show>
+      <GoogleMap />
       <div className="object">
         <h2>getPosts() - data fetching</h2>
         <ul>
@@ -94,14 +98,14 @@ function App() {
       </div>
 
       <div className="object">
-        <h2>uploadPost(postText) - data inserting</h2>
+        <h2>uploadPost(text) - data inserting</h2>
         <input value={postText()} onInput={(e) => {setPostText(e.target.value)}}></input>
         <p>{postText()}</p>
         <button onClick={uploadHandler}>post data</button>
       </div>
 
       <div className="object">
-        <h2>searchPost(postText) - data searching</h2>
+        <h2>searchPost(text) - data searching</h2>
         <input value={searchText()} onInput={(e) => {setSearchText(e.target.value)}}></input>
         {searchResult() && 
           <ul>
