@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import styles from './App.module.css';
-import {createSignal, onMount} from 'solid-js'
+import {createSignal, onMount, For} from 'solid-js'
 import {supabase} from './supabaseClient'
 
 function App() {
@@ -40,41 +40,64 @@ function App() {
     setInitialData(data);
   });
 
+  const fetchHandler = async () => {
+    setIsLoading(true);
+    await getPosts().then((res) => {
+      console.log(res.data[0].tekst)
+      const posts = res.data;
+      let dataObject = [];
+      posts.map((post) => {
+        dataObject.push(post.tekst);
+      })
+      setData(dataObject);
+      setIsLoading(false);
+    })
+  }
+
+  const uploadHandler = async () => {
+    setIsLoading(true);
+    await insertPost(postText()).then((res) => {
+      if(res.error)
+        console.error(res.error);
+    
+      setIsLoading(false);
+    })
+  }
+
+  const searchHandler = async () => {
+    setIsLoading(true);
+    await searchPost(searchText()).then((res) => {
+      console.log(res);
+      const data = res;
+      let dataObject = [];
+      data.map(post => {
+        dataObject.push(post.tekst);
+      })
+      setSearchResult(dataObject);
+      
+      setIsLoading(false);
+    })
+  }
+
+
   return (
     <div>
       {isLoading() && <h1>Loading...</h1>}
       <div className="object">
         <h2>getPosts() - data fetching</h2>
         <ul>
-          {data().map((post => {
-          return(<li>{post}</li>)
-        }))}
+          <For each={data()} fallback={<h5>No data</h5>}>
+            {(post) => <li>{post}</li>}
+          </For>
         </ul>
-        <button onClick={async () => {
-          setIsLoading(true);
-          await getPosts().then((res) => {
-            console.log(res.data[0].tekst)
-            const posts = res.data;
-            let dataObject = [];
-            posts.map((post) => {
-              dataObject.push(post.tekst);
-            })
-            setData(dataObject);
-            setIsLoading(false);
-          })
-        }}>get data</button>
+        <button onClick={fetchHandler}>get data</button>
       </div>
 
       <div className="object">
         <h2>uploadPost(postText) - data inserting</h2>
         <input value={postText()} onInput={(e) => {setPostText(e.target.value)}}></input>
         <p>{postText()}</p>
-        <button onClick={async () => {
-          setIsLoading(true);
-          await insertPost(postText()).then((res) => {
-            setIsLoading(false);
-          })
-        }}>post data</button>
+        <button onClick={uploadHandler}>post data</button>
       </div>
 
       <div className="object">
@@ -82,26 +105,13 @@ function App() {
         <input value={searchText()} onInput={(e) => {setSearchText(e.target.value)}}></input>
         {searchResult() && 
           <ul>
-            {searchResult().map((post) => {
-              return(<li>{post}</li>)
-            })}
+          <For each={searchResult()} fallback={<h5>No data</h5>}>
+            {(post) => <li>{post}</li>}
+          </For>
           </ul>
           }
         <p>{searchText()}</p>
-        <button onClick={async () => {
-          setIsLoading(true);
-          await searchPost(searchText()).then((res) => {
-            console.log(res);
-            const data = res;
-            let dataObject = [];
-            data.map(post => {
-              dataObject.push(post.tekst);
-            })
-            setSearchResult(dataObject);
-            
-            setIsLoading(false);
-          })
-        }}>search data</button>
+        <button onClick={searchHandler}>search data</button>
       </div>
     </div>
   );
