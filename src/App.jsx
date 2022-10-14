@@ -2,6 +2,7 @@ import logo from './logo.svg';
 import styles from './App.module.css';
 import {createSignal, onMount, For, Show} from 'solid-js'
 import {supabase} from './supabaseClient'
+import OpenLayersMap from './components/OpenLayersMap';
 import GoogleMap from './components/GoogleMap';
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
   const [postText, setPostText] = createSignal('');
   const [searchText, setSearchText] = createSignal('');
   const [searchResult, setSearchResult] = createSignal([]);
+  const [useOpenLayers, setUseOpenLayers] = createSignal(true);
 
   const getPosts = async () => {
     const data = await supabase.from('posts').select();
@@ -86,7 +88,9 @@ function App() {
       <Show when={isLoading()}>
         <h1>Loading...</h1>
       </Show>
-      <GoogleMap />
+      {!useOpenLayers() && <GoogleMap />}
+      {useOpenLayers() && <OpenLayersMap />}
+      <label><input checked={useOpenLayers()} type="checkbox" onChange={() => {setUseOpenLayers(!useOpenLayers())}}/> use OpenLayers</label>
       <div className="object">
         <h2>getPosts() - data fetching</h2>
         <ul>
