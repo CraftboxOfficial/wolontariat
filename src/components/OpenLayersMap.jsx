@@ -12,9 +12,6 @@ import Icon from 'ol/style/Icon';
 import Modify from 'ol/interaction/Modify';
 import Select from 'ol/interaction/Select';
 
-
-
-
 const handleMarkerClick = (e) => {
   console.log(e)
 }

@@ -1,9 +1,13 @@
 import logo from './logo.svg';
 import styles from './App.module.css';
-import {createSignal, onMount, For, Show} from 'solid-js'
+import {createSignal, onMount, For, Show, createContext, useContext} from 'solid-js'
 import {supabase} from './supabaseClient'
 import OpenLayersMap from './components/OpenLayersMap';
 import GoogleMap from './components/GoogleMap';
+import { Loader } from '@googlemaps/js-api-loader';
+import { MarkerClusterer } from "@googlemaps/markerclusterer";
+
+export const markerClustersContext = createContext();
 
 function App() {
   const [initialData, setInitialData] = createSignal([]);
@@ -12,7 +16,7 @@ function App() {
   const [postText, setPostText] = createSignal('');
   const [searchText, setSearchText] = createSignal('');
   const [searchResult, setSearchResult] = createSignal([]);
-  const [useOpenLayers, setUseOpenLayers] = createSignal(true);
+  const [useOpenLayers, setUseOpenLayers] = createSignal(false);
 
   const getPosts = async () => {
     const data = await supabase.from('posts').select();
@@ -82,14 +86,19 @@ function App() {
     })
   }
 
+  const clearMarkers = () => {
+    setInitialData({"data": []});
+  }
+
 
   return (
-    <div>
+  <div>
       <Show when={isLoading()}>
         <h1>Loading...</h1>
       </Show>
-      {!useOpenLayers() && <GoogleMap />}
-      {useOpenLayers() && <OpenLayersMap />}
+      <button onClick={clearMarkers}>delete clusters</button>
+      {!useOpenLayers() && (initialData() && <GoogleMap locations={initialData}/>)}
+      {useOpenLayers() && <OpenLayersMap/>}
       <label><input checked={useOpenLayers()} type="checkbox" onChange={() => {setUseOpenLayers(!useOpenLayers())}}/> use OpenLayers</label>
       <div className="object">
         <h2>getPosts() - data fetching</h2>

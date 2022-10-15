@@ -1,6 +1,7 @@
-import {createSignal, onMount, For, Show} from 'solid-js'
+import {createSignal, onMount, For, Show, useContext, createEffect} from 'solid-js'
 import { Loader } from '@googlemaps/js-api-loader';
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import { markerClustersContext } from '../App';
 
 const loader = new Loader({
   apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -14,63 +15,58 @@ const mapOptions = {
     lng: 19.145136
   },
   streetViewControl: false,
-  mapTypeId: google.maps.MapTypeId.ROADMAP,
+  //mapTypeId: google.maps.MapTypeId.ROADMAP,
   disableDefaultUI: false,
   mapTypeControl: false,
   scaleControl: true,
   zoomControl: true,
   zoomControlOptions: {
-    style: google.maps.ZoomControlStyle.LARGE 
+    //style: google.maps.ZoomControlStyle.LARGE 
   },
   zoom: 6
 };
 
-const locations = [
-  { lat: 51.919438, lng: 19.145136 },
-  { lat: 47.919438, lng: 18.145136 },
-  { lat: 51.919438, lng: 18.175136 },
-  { lat: 51.929438, lng: 19.135136 },
-  { lat: 51.969438, lng: 19.345136 },
-  { lat: 56.819438, lng: 19.145136 },
-  { lat: 51.919838, lng: 19.148136 },
-  { lat: 54.909438, lng: 19.145136 },
-  { lat: 56.919438, lng: 19.945136 },
-  { lat: 51.979438, lng: 19.145136 },
-  { lat: 52.919438, lng: 19.145166 },
-  { lat: 51.519438, lng: 19.145136 },
-  { lat: 51.919438, lng: 19.435136 },
-  { lat: 50.219438, lng: 19.145136 },
-  { lat: 51.919438, lng: 19.245136 },
-
-];
-
 let map;
 
-const GoogleMap = () => { 
+const addMarker = (position, label) => {
+  const marker = new google.maps.Marker({
+    position,
+    label,
+    map
+  });
+
+  const infoWindow = new google.maps.InfoWindow({
+    content: "",
+    disableAutoPan: true,
+  });
+
+      
+  marker.addListener("click", () => {
+    infoWindow.setContent('Post od ' + label);
+    infoWindow.open(map, marker);
+  });
+  return marker
+}
+
+const GoogleMap = ({locations}) => { 
+  createEffect(() => {
+    console.warn(locations());
+  })
+
   onMount(async () => {
     loader
       .load()
       .then((google) => {
-        const map = new google.maps.Map(document.getElementById("map"), mapOptions);
+        document.getElementById('map').classList.add('showed') // loading placeholder
+        map = new google.maps.Map(document.getElementById("map"), mapOptions);
         console.log(google)
 
-        const infoWindow = new google.maps.InfoWindow({
-          content: "",
-          disableAutoPan: true,
-        });
-  
         const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        const markers = locations.map((position, i) => {
+        const data = locations().data;
+        const markers = data.map((item, i) => {
+          const position = item.geolocation;
           const label = labels[i % labels.length];
-          const marker = new google.maps.Marker({
-            position,
-            label,
-          });
-      
-          marker.addListener("click", () => {
-            infoWindow.setContent('Post od ' + label);
-            infoWindow.open(map, marker);
-          });
+          const marker = addMarker(position, label);
           return marker;
         });
       
@@ -78,11 +74,12 @@ const GoogleMap = () => {
       })
       .catch(e => {
         console.error(e)
-        // do something
       });
   });
   return (
-    <div id="map" />
+    <>
+        <div id="map" />
+    </>
   );
 }
  
