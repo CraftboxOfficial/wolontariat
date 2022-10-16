@@ -27,10 +27,10 @@ const mapOptions = {
   zoom: 6
 };
 
-let map;
-let markerClusters;
+let map: any;
+let markerClusters: any;
 
-const addMarker = (position, label) => {
+const addMarker = (position: any, label: any) => {
   const marker = new google.maps.Marker({
     position,
     label,
@@ -51,20 +51,21 @@ const addMarker = (position, label) => {
 }
 
 const GoogleMap = () => { 
+  //@ts-ignore
   const [locations, {updateLocations}] = useLocations();
 
-  const loadMarkers = (refreshMap) => {
+  const loadMarkers = (refreshMap: any) => {
     loader
     .load()
     .then((google) => {
       if(refreshMap){
-        map = new google.maps.Map(document.getElementById("map"), mapOptions);
-        document.getElementById('map').classList.add('showed') 
+        map = new google.maps.Map(document.getElementById("map") as HTMLElement, mapOptions);
+        document.getElementById('map')?.classList.add('showed') 
       }
       console.log(google)
       const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       const data = locations().data;
-      const markers = data.map((item, i) => {
+      const markers = data.map((item: any, i: number) => {
         const position = item.geolocation;
         const label = labels[i % labels.length];
         const marker = addMarker(position, label);
