@@ -11,10 +11,37 @@ import { LocationsProvider, useLocations } from './LocationsProvider';
 import { Route, Routes } from 'solid-app-router';
 import { PostsPage } from './pages/Posts';
 import { styled } from 'solid-styled-components';
+import { PostPage } from './pages/Post';
+
+export interface PostI {
+  id: number,
+  created_at: Date,
+  title: string,
+  geolocation: {
+    lat: number,
+    lng: number
+  },
+  desc: string,
+  images: string[]
+}
+
+export interface FetchedPosts {
+  count: number | null,
+  data: PostI[],
+  error: string | null,
+  status: number,
+  statusText: string
+}
+
+export const getPostById = async (id: number) => {
+  const data = await supabase.from('posts').select().eq(`id`, id);
+  return data as FetchedPosts;
+}
 
 export const getPosts = async () => {
-  const data = await supabase.from('posts').select();
-  return data;
+  // const data = await supabase.from('posts').select().eq(`id`, 123);
+  const data = await supabase.from('posts').select()
+  return data as FetchedPosts;
 }
 
 export const App: Component = () => {
@@ -54,16 +81,16 @@ export const App: Component = () => {
 
   // Można raz wykonać requesta do bazy danych po posty i potem nimi manipulować przez createSignal.
   const searchPostLocally = async (text: string) => {
-    const data = initialData().length == 0 ? await supabase.from('posts').select() : initialData()
+    const data: FetchedPosts = initialData().length == 0 ? await supabase.from('posts').select() : initialData()
     const array = data.data;
     const filteredResult = array.filter((post: any) => post.title.toLowerCase().includes(text.toLowerCase()));
-    return filteredResult;
+    return filteredResult
   }
 
   // Albo wykonywać request za każdym razem.
   const searchPost = async (text: string) => {
     const data = await supabase.from('posts').select().like('title', `%${text}%`)
-    return data.data;
+    return data.data as FetchedPosts;
   }
 
   onMount(async () => {
@@ -104,7 +131,7 @@ export const App: Component = () => {
       console.log(res);
       const data = res;
       let dataObject: any[] = [];
-      data.map((post: any) => {
+      data.map((post: PostI) => {
         dataObject.push(post.title);
       })
       // @ts-ignore
@@ -124,57 +151,59 @@ export const App: Component = () => {
   }
 
   return (
-    // <>
-    //   <AppStyle>
-    //     <Routes>
-    //       <Route path={"/"} component={PostsPage} />
-    //     </Routes>
-    //   </AppStyle>
-    // </>
-    <div>
-      <Show when={isLoading()}>
-        <h1>Loading...</h1>
-      </Show>
-      <button onClick={clearMarkers}>delete clusters</button>
-      <button onClick={loadMarkersManual}>load manual</button>
-      {!useOpenLayers() && (
-        <Show when={initialData() !== undefined}>
-          <GoogleMap />
-        </Show>)
-      }
-      {useOpenLayers() && <OpenLayersMap />}
-      <label><input checked={useOpenLayers()} type="checkbox" onChange={() => { setUseOpenLayers(!useOpenLayers()) }} /> use OpenLayers</label>
-      <div class="object">
-        <h2>getPosts() - data fetching</h2>
-        <ul>
-          <For each={data()} fallback={<h5>No data</h5>}>
-            {(post) => <li>{post}</li>}
-          </For>
-        </ul>
-        <button onClick={fetchHandler}>get data</button>
-      </div>
+    <>
+      <AppStyle>
+        <Routes>
+          <Route path={"/"} component={PostsPage} />
+          <Route path={"/post"} component={PostsPage} />
+          <Route path={"/post/:postId"} component={PostPage} />
+        </Routes>
+      </AppStyle>
+    </>
+    //   <div>
+    //     <Show when={isLoading()}>
+    //       <h1>Loading...</h1>
+    //     </Show>
+    //     <button onClick={clearMarkers}>delete clusters</button>
+    //     <button onClick={loadMarkersManual}>load manual</button>
+    //     {!useOpenLayers() && (
+    //       <Show when={initialData() !== undefined}>
+    //         <GoogleMap />
+    //       </Show>)
+    //     }
+    //     {useOpenLayers() && <OpenLayersMap />}
+    //     <label><input checked={useOpenLayers()} type="checkbox" onChange={() => { setUseOpenLayers(!useOpenLayers()) }} /> use OpenLayers</label>
+    //     <div class="object">
+    //       <h2>getPosts() - data fetching</h2>
+    //       <ul>
+    //         <For each={data()} fallback={<h5>No data</h5>}>
+    //           {(post) => <li>{post}</li>}
+    //         </For>
+    //       </ul>
+    //       <button onClick={fetchHandler}>get data</button>
+    //     </div>
 
-      <div class="object">
-        <h2>uploadPost(text) - data inserting</h2>
-        <input value={postText()} onInput={(e: any) => { setPostText(e.target.value) }}></input>
-        <p>{postText()}</p>
-        <button onClick={uploadHandler}>post data</button>
-      </div>
+    //     <div class="object">
+    //       <h2>uploadPost(text) - data inserting</h2>
+    //       <input value={postText()} onInput={(e: any) => { setPostText(e.target.value) }}></input>
+    //       <p>{postText()}</p>
+    //       <button onClick={uploadHandler}>post data</button>
+    //     </div>
 
-      <div class="object">
-        <h2>searchPost(text) - data searching</h2>
-        <input value={searchText()} onInput={(e: any) => { setSearchText(e.target.value) }}></input>
-        {searchResult() &&
-          <ul>
-            <For each={searchResult()} fallback={<h5>No data</h5>}>
-              {(post) => <li>{post}</li>}
-            </For>
-          </ul>
-        }
-        <p>{searchText()}</p>
-        <button onClick={searchHandler}>search data</button>
-      </div>
-    </div>
+    //     <div class="object">
+    //       <h2>searchPost(text) - data searching</h2>
+    //       <input value={searchText()} onInput={(e: any) => { setSearchText(e.target.value) }}></input>
+    //       {searchResult() &&
+    //         <ul>
+    //           <For each={searchResult()} fallback={<h5>No data</h5>}>
+    //             {(post) => <li>{post}</li>}
+    //           </For>
+    //         </ul>
+    //       }
+    //       <p>{searchText()}</p>
+    //       <button onClick={searchHandler}>search data</button>
+    //     </div>
+    //   </div>
   );
 }
 export default App;

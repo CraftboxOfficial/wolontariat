@@ -1,19 +1,10 @@
 import { Component } from "solid-js";
 import { styled } from 'solid-styled-components';
+import { PostI } from "../../App";
 
-export interface Post {
-	id: number,
-	created_at: Date,
-	title: string,
-	geolocation: {
-		lat: number,
-		lng: number
-	},
-	desc: string,
-	images: string[]
-}
 
-export const Post: Component<{ post: Post }> = (props) => {
+
+export const Post: Component<{ post: PostI }> = (props) => {
 
 	return (
 		<>

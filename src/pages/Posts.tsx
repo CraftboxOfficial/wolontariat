@@ -1,10 +1,11 @@
 import { Component, For } from "solid-js";
 import { styled } from 'solid-styled-components';
+import { PostI } from "../App";
 import { Post } from "./Posts/Post";
 
 export const PostsPage: Component = () => {
 
-	const a: Post[] = [
+	const a: PostI[] = [
 		{
 			id: 1,
 			desc: "desc 1",
@@ -48,7 +49,7 @@ export const PostsPage: Component = () => {
 						<Post post={post} />
 					)}
 				</For>
-				
+
 			</PostsPageStyle>
 		</>
 	)

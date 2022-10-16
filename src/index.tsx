@@ -5,19 +5,19 @@ import './index.css';
 import App from './App';
 import { getPosts } from './App';
 import { LocationsProvider, useLocations } from './LocationsProvider';
-import { createSignal, onMount } from 'solid-js';
+import { Accessor, createSignal, onMount, Setter } from 'solid-js';
 import { Router } from 'solid-app-router';
 
-const [ postsSignal, setPostsSignal ] = createSignal([]);
+const [ postsSignal, setPostsSignal ]: [Accessor<any[]>, Setter<any[]>] = createSignal([]);
 
 
 
 render(() => {
 
-  onMount(async () => {
-    const posts = await getPosts();
-    setPostsSignal(posts);
-  })
+  // onMount(async () => {
+  //   const posts = await getPosts();
+  //   setPostsSignal(posts);
+  // })
 
   return (
     <>
