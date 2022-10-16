@@ -1,7 +1,8 @@
-import {createSignal, onMount, For, Show, useContext, createEffect} from 'solid-js'
-import { Loader } from '@googlemaps/js-api-loader';
-import { MarkerClusterer } from "@googlemaps/markerclusterer";
-import { markerClustersContext } from '../App';
+import {createSignal, onMount, For, Show, useContext, createEffect, runWithOwner, getOwner } from 'solid-js'
+import { Loader} from '@googlemaps/js-api-loader';
+import { MarkerClusterer} from "@googlemaps/markerclusterer"
+import {LocationsProvider, useLocations} from '../LocationsProvider';
+import { getPosts } from '../App';
 
 const loader = new Loader({
   apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -27,6 +28,7 @@ const mapOptions = {
 };
 
 let map;
+let markerClusters;
 
 const addMarker = (position, label) => {
   const marker = new google.maps.Marker({
@@ -39,48 +41,70 @@ const addMarker = (position, label) => {
     content: "",
     disableAutoPan: true,
   });
-
-      
+  
   marker.addListener("click", () => {
     infoWindow.setContent('Post od ' + label);
     infoWindow.open(map, marker);
   });
-  return marker
+
+  return marker 
 }
 
-const GoogleMap = ({locations}) => { 
+const GoogleMap = () => { 
+  const [locations, {updateLocations}] = useLocations();
+
+  const loadMarkers = (refreshMap) => {
+    loader
+    .load()
+    .then((google) => {
+      if(refreshMap){
+        map = new google.maps.Map(document.getElementById("map"), mapOptions);
+        document.getElementById('map').classList.add('showed') 
+      }
+      console.log(google)
+      const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const data = locations().data;
+      const markers = data.map((item, i) => {
+        const position = item.geolocation;
+        const label = labels[i % labels.length];
+        const marker = addMarker(position, label);
+        return marker;
+      });
+    
+      markerClusters = new MarkerClusterer({ markers, map });
+    })
+    .catch(e => {
+      console.error(e)
+    });
+  }
+
   createEffect(() => {
-    console.warn(locations());
-  })
+    if(locations().length !== 0){
+      if(markerClusters !== undefined){
+        markerClusters.clearMarkers();
+      }
+
+      if(locations().data.length !== 0){
+        loadMarkers(false)
+      }
+    }
+  });
 
   onMount(async () => {
-    loader
-      .load()
-      .then((google) => {
-        document.getElementById('map').classList.add('showed') // loading placeholder
-        map = new google.maps.Map(document.getElementById("map"), mapOptions);
-        console.log(google)
+    console.log(locations, "  :LOCATIONS")
+    const posts = await getPosts();
+    updateLocations(posts);
 
-        const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        const data = locations().data;
-        const markers = data.map((item, i) => {
-          const position = item.geolocation;
-          const label = labels[i % labels.length];
-          const marker = addMarker(position, label);
-          return marker;
-        });
-      
-        new MarkerClusterer({ markers, map });
-      })
-      .catch(e => {
-        console.error(e)
-      });
+    loadMarkers(true);
   });
   return (
     <>
-        <div id="map" />
+      <button onClick={() => {console.log(locations())}}>tt</button>
+      <div id="map" />
+      {locations && <h1>locations data: {JSON.stringify(locations())}</h1>}
     </>
+    
   );
 }
- 
+
 export default GoogleMap;

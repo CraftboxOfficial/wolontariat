@@ -6,8 +6,12 @@ import OpenLayersMap from './components/OpenLayersMap';
 import GoogleMap from './components/GoogleMap';
 import { Loader } from '@googlemaps/js-api-loader';
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import {LocationsProvider, useLocations} from './LocationsProvider';
 
-export const markerClustersContext = createContext();
+export const getPosts = async () => {
+  const data = await supabase.from('posts').select();
+  return data;
+}
 
 function App() {
   const [initialData, setInitialData] = createSignal([]);
@@ -18,10 +22,25 @@ function App() {
   const [searchResult, setSearchResult] = createSignal([]);
   const [useOpenLayers, setUseOpenLayers] = createSignal(false);
 
-  const getPosts = async () => {
-    const data = await supabase.from('posts').select();
-    return data;
-  }
+  const [locations, {updateLocations}] = useLocations();
+  // const [locations, {updateLocations}] = useLocations();
+
+  const mapOptions = {
+    center: {
+      lat: 51.9194381,
+      lng: 19.145136
+    },
+    streetViewControl: false,
+    //mapTypeId: google.maps.MapTypeId.ROADMAP,
+    disableDefaultUI: false,
+    mapTypeControl: false,
+    scaleControl: true,
+    zoomControl: true,
+    zoomControlOptions: {
+      //style: google.maps.ZoomControlStyle.LARGE 
+    },
+    zoom: 6
+  };
 
   const insertPost = async (text) => {
     const data = await supabase.from('posts').insert({tekst: text})
@@ -45,6 +64,8 @@ function App() {
   onMount(async () => {
     const data = await supabase.from('posts').select();
     setInitialData(data);
+    console.log(data);
+    console.warn(initialData())
   });
 
   const fetchHandler = async () => {
@@ -87,9 +108,13 @@ function App() {
   }
 
   const clearMarkers = () => {
-    setInitialData({"data": []});
+    updateLocations({"data": []})
   }
-
+  
+  const loadMarkersManual = async () => {
+    const data = await supabase.from('posts').select();
+    updateLocations(data);
+  }
 
   return (
   <div>
@@ -97,7 +122,12 @@ function App() {
         <h1>Loading...</h1>
       </Show>
       <button onClick={clearMarkers}>delete clusters</button>
-      {!useOpenLayers() && (initialData() && <GoogleMap locations={initialData}/>)}
+      <button onClick={loadMarkersManual}>load manual</button>  
+        {!useOpenLayers() && (
+          <Show when={initialData() !== undefined}>
+            <GoogleMap/>
+          </Show>)
+        }
       {useOpenLayers() && <OpenLayersMap/>}
       <label><input checked={useOpenLayers()} type="checkbox" onChange={() => {setUseOpenLayers(!useOpenLayers())}}/> use OpenLayers</label>
       <div className="object">
@@ -133,5 +163,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
