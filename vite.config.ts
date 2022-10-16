@@ -13,9 +13,9 @@ export default defineConfig({
       globPatterns: [ "**/*.{js,css,html,ico,png,svg}" ]
     },
     manifest: {
-      name: 'ShowTracker',
-      short_name: 'ShowTracker',
-      description: 'Track yours favorite shows and movies',
+      name: 'Dobrowraca',
+      short_name: 'Dobrowraca',
+      description: '',
       theme_color: '#ffffff',
       icons: [
         {
