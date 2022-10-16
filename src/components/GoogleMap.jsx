@@ -84,6 +84,7 @@ const GoogleMap = () => {
         markerClusters.clearMarkers();
       }
 
+      loadMarkers(false)
       if(locations().data.length !== 0){
         loadMarkers(false)
       }

@@ -36,3 +36,10 @@ code {
   opacity: 1;
   transition: 0.3s;
 }
+
+input[type="email"],
+input[type="password"]
+{
+  display: block;
+  margin: 5px;
+}

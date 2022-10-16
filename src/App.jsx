@@ -7,6 +7,7 @@ import GoogleMap from './components/GoogleMap';
 import { Loader } from '@googlemaps/js-api-loader';
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import {LocationsProvider, useLocations} from './LocationsProvider';
+import UserComponent from './components/UserComponent';
 
 export const getPosts = async () => {
   const data = await supabase.from('posts').select();
@@ -43,7 +44,7 @@ function App() {
   };
 
   const insertPost = async (text) => {
-    const data = await supabase.from('posts').insert({tekst: text})
+    const data = await supabase.from('posts').insert({title: text})
     return data;
   }
 
@@ -51,13 +52,13 @@ function App() {
   const searchPostLocally = async (text) => {
     const data = initialData().length == 0 ? await supabase.from('posts').select() : initialData()
     const array = data.data;
-    const filteredResult = array.filter(post => post.tekst.toLowerCase().includes(text.toLowerCase()));
+    const filteredResult = array.filter(post => post.title.toLowerCase().includes(text.toLowerCase()));
     return filteredResult;
   }
 
   // Albo wykonywać request za każdym razem.
   const searchPost = async (text) => {
-    const data = await supabase.from('posts').select().like('tekst', `%${text}%`)
+    const data = await supabase.from('posts').select().like('title', `%${text}%`)
     return data.data;
   }
 
@@ -71,11 +72,11 @@ function App() {
   const fetchHandler = async () => {
     setIsLoading(true);
     await getPosts().then((res) => {
-      console.log(res.data[0].tekst)
+      console.log(res.data[0].title)
       const posts = res.data;
       let dataObject = [];
       posts.map((post) => {
-        dataObject.push(post.tekst);
+        dataObject.push(post.title);
       })
       setData(dataObject);
       setIsLoading(false);
@@ -99,7 +100,7 @@ function App() {
       const data = res;
       let dataObject = [];
       data.map(post => {
-        dataObject.push(post.tekst);
+        dataObject.push(post.title);
       })
       setSearchResult(dataObject);
       
@@ -130,6 +131,7 @@ function App() {
         }
       {useOpenLayers() && <OpenLayersMap/>}
       <label><input checked={useOpenLayers()} type="checkbox" onChange={() => {setUseOpenLayers(!useOpenLayers())}}/> use OpenLayers</label>
+      <UserComponent />
       <div className="object">
         <h2>getPosts() - data fetching</h2>
         <ul>
