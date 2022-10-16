@@ -4,7 +4,7 @@ import { createSignal, onMount, For, Show, createContext, useContext, Component 
 //@ts-ignore
 import { supabase } from './supabaseClient'
 import OpenLayersMap from './components/OpenLayersMap';
-import GoogleMap from './components/GoogleMap';
+// import GoogleMap from './components/GoogleMap';
 import { Loader } from '@googlemaps/js-api-loader';
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { LocationsProvider, useLocations } from './LocationsProvider';
@@ -12,6 +12,8 @@ import { Route, Routes } from 'solid-app-router';
 import { PostsPage } from './pages/Posts';
 import { styled } from 'solid-styled-components';
 import { PostPage } from './pages/Post';
+import { PageNavigator } from './components/PageNavigator';
+import { MapPage } from './pages/Map';
 
 export interface PostI {
   id: number,
@@ -31,6 +33,11 @@ export interface FetchedPosts {
   error: string | null,
   status: number,
   statusText: string
+}
+
+export const searchPostByTitle = async (text: string) => {
+  const data = await supabase.from('posts').select().like('title', `%${text}%`)
+  return data.data as PostI[];
 }
 
 export const getPostById = async (id: number) => {
@@ -150,14 +157,16 @@ export const App: Component = () => {
     updateLocations(data);
   }
 
+
   return (
     <>
       <AppStyle>
         <Routes>
-          <Route path={"/"} component={PostsPage} />
-          <Route path={"/post"} component={PostsPage} />
+          <Route path={"/"} component={MapPage} />
+          <Route path={"/search"} component={PostsPage} />
           <Route path={"/post/:postId"} component={PostPage} />
         </Routes>
+        <PageNavigator />
       </AppStyle>
     </>
     //   <div>
@@ -211,6 +220,7 @@ export default App;
 const AppStyle = styled("div")(() => {
   return {
     height: "100vh",
+    maxHeight: "100vh",
     // display: "flex"
   }
 })
