@@ -4,13 +4,13 @@ import solidPlugin from 'vite-plugin-solid';
 import mkcert from 'vite-plugin-mkcert';
 
 export default defineConfig({
-  plugins: [ solidPlugin(), mkcert(), VitePWA({
+  plugins: [solidPlugin(), mkcert(), VitePWA({
     registerType: "autoUpdate",
     devOptions: {
       enabled: true
     },
     workbox: {
-      globPatterns: [ "**/*.{js,css,html,ico,png,svg}" ]
+      globPatterns: ["**/*.{js,css,html,ico,png,svg}"]
     },
     manifest: {
       name: 'Dobrowraca',
@@ -30,10 +30,10 @@ export default defineConfig({
         }
       ]
     }
-  }) ],
+  })],
   server: {
     port: 3000,
-    https: true
+    https: false
   },
   build: {
     target: 'esnext',

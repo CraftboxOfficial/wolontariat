@@ -3,8 +3,7 @@ import styles from './App.module.css';
 import { createSignal, onMount, For, Show, createContext, useContext, Component } from 'solid-js';
 //@ts-ignore
 import { supabase } from './supabaseClient'
-import OpenLayersMap from './components/OpenLayersMap';
-// import GoogleMap from './components/GoogleMap';
+import {GoogleMap} from './components/GoogleMap';
 import { Loader } from '@googlemaps/js-api-loader';
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { LocationsProvider, useLocations } from './LocationsProvider';
@@ -14,6 +13,7 @@ import { styled } from 'solid-styled-components';
 import { PostPage } from './pages/Post';
 import { PageNavigator } from './components/PageNavigator';
 import { MapPage } from './pages/Map';
+import UserComponent  from './components/UserComponent';
 
 export interface PostI {
   id: number,
@@ -160,7 +160,7 @@ export const App: Component = () => {
 
   return (
     <>
-      <AppStyle>
+      {/* <AppStyle>
         <Routes>
           <Route path={"/"} component={MapPage} />
           <Route path={"/search"} component={PostsPage} />
@@ -168,51 +168,51 @@ export const App: Component = () => {
         </Routes>
         <PageNavigator />
       </AppStyle>
+    </> */}
+      <div>
+        <Show when={isLoading()}>
+          <h1>Loading...</h1>
+        </Show>
+        <button onClick={clearMarkers}>delete clusters</button>
+        <button onClick={loadMarkersManual}>load manual</button>
+        {!useOpenLayers() && (
+          <Show when={initialData() !== undefined}>
+            <GoogleMap />
+          </Show>)
+        }
+        <UserComponent />
+        <div class="object">
+          <h2>getPosts() - data fetching</h2>
+          <ul>
+            <For each={data()} fallback={<h5>No data</h5>}>
+              {(post) => <li>{post}</li>}
+            </For>
+          </ul>
+          <button onClick={fetchHandler}>get data</button>
+        </div>
+
+        <div class="object">
+          <h2>uploadPost(text) - data inserting</h2>
+          <input value={postText()} onInput={(e: any) => { setPostText(e.target.value) }}></input>
+          <p>{postText()}</p>
+          <button onClick={uploadHandler}>post data</button>
+        </div>
+
+        <div class="object">
+          <h2>searchPost(text) - data searching</h2>
+          <input value={searchText()} onInput={(e: any) => { setSearchText(e.target.value) }}></input>
+          {searchResult() &&
+            <ul>
+              <For each={searchResult()} fallback={<h5>No data</h5>}>
+                {(post) => <li>{post}</li>}
+              </For>
+            </ul>
+          }
+          <p>{searchText()}</p>
+          <button onClick={searchHandler}>search data</button>
+        </div>
+      </div>
     </>
-    //   <div>
-    //     <Show when={isLoading()}>
-    //       <h1>Loading...</h1>
-    //     </Show>
-    //     <button onClick={clearMarkers}>delete clusters</button>
-    //     <button onClick={loadMarkersManual}>load manual</button>
-    //     {!useOpenLayers() && (
-    //       <Show when={initialData() !== undefined}>
-    //         <GoogleMap />
-    //       </Show>)
-    //     }
-    //     {useOpenLayers() && <OpenLayersMap />}
-    //     <label><input checked={useOpenLayers()} type="checkbox" onChange={() => { setUseOpenLayers(!useOpenLayers()) }} /> use OpenLayers</label>
-    //     <div class="object">
-    //       <h2>getPosts() - data fetching</h2>
-    //       <ul>
-    //         <For each={data()} fallback={<h5>No data</h5>}>
-    //           {(post) => <li>{post}</li>}
-    //         </For>
-    //       </ul>
-    //       <button onClick={fetchHandler}>get data</button>
-    //     </div>
-
-    //     <div class="object">
-    //       <h2>uploadPost(text) - data inserting</h2>
-    //       <input value={postText()} onInput={(e: any) => { setPostText(e.target.value) }}></input>
-    //       <p>{postText()}</p>
-    //       <button onClick={uploadHandler}>post data</button>
-    //     </div>
-
-    //     <div class="object">
-    //       <h2>searchPost(text) - data searching</h2>
-    //       <input value={searchText()} onInput={(e: any) => { setSearchText(e.target.value) }}></input>
-    //       {searchResult() &&
-    //         <ul>
-    //           <For each={searchResult()} fallback={<h5>No data</h5>}>
-    //             {(post) => <li>{post}</li>}
-    //           </For>
-    //         </ul>
-    //       }
-    //       <p>{searchText()}</p>
-    //       <button onClick={searchHandler}>search data</button>
-    //     </div>
-    //   </div>
   );
 }
 export default App;
