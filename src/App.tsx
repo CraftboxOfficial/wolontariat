@@ -103,8 +103,8 @@ export const App: Component = () => {
   onMount(async () => {
     const data = await supabase.from('posts').select();
     setInitialData(data);
-    console.log(data);
-    console.warn(initialData())
+    console.trace(data);
+    console.trace(initialData())
   });
 
   const fetchHandler = async () => {

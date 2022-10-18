@@ -8,7 +8,7 @@ import { LocationsProvider, useLocations } from './LocationsProvider';
 import { Accessor, createSignal, onMount, Setter } from 'solid-js';
 import { Router } from 'solid-app-router';
 
-const [ postsSignal, setPostsSignal ]: [Accessor<any[]>, Setter<any[]>] = createSignal([]);
+const [ postsSignal, setPostsSignal ] = createSignal([]);
 
 
 
@@ -27,4 +27,4 @@ render(() => {
         </Router>
       </LocationsProvider>
     </>)
-}, document.getElementById('root') as HTMLElement);
+}, document.getElementById('root'));
