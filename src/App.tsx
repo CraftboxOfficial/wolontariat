@@ -64,23 +64,6 @@ export const App: Component = () => {
   const [ locations, { updateLocations } ] = useLocations();
   // const [locations, {updateLocations}] = useLocations();
 
-  const mapOptions = {
-    center: {
-      lat: 51.9194381,
-      lng: 19.145136
-    },
-    streetViewControl: false,
-    //mapTypeId: google.maps.MapTypeId.ROADMAP,
-    disableDefaultUI: false,
-    mapTypeControl: false,
-    scaleControl: true,
-    zoomControl: true,
-    zoomControlOptions: {
-      //style: google.maps.ZoomControlStyle.LARGE 
-    },
-    zoom: 6
-  };
-
   const insertPost = async (text: string) => {
     const data = await supabase.from('posts').insert({ title: text })
     return data;

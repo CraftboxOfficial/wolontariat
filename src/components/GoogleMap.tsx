@@ -4,7 +4,6 @@ import { MarkerClusterer } from "@googlemaps/markerclusterer"
 import { LocationsProvider, useLocations } from '../LocationsProvider';
 import { getPosts } from '../App';
 import { styled } from 'solid-styled-components';
-
 const loader = new Loader({
   apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   version: "weekly",
@@ -18,14 +17,14 @@ const mapOptions: google.maps.MapOptions = {
   },
   streetViewControl: false,
   //mapTypeId: google.maps.MapTypeId.ROADMAP,
-  disableDefaultUI: false,
+  disableDefaultUI: true,
   mapTypeControl: false,
   scaleControl: false,
   zoomControl: false,
   zoomControlOptions: {
     //style: google.maps.ZoomControlStyle.LARGE 
   },
-  zoom: 6,
+  zoom: 7,
   
 };
 
@@ -56,9 +55,13 @@ const addMarker = (position: any, label: any) => {
 export const GoogleMap = () => {
   //@ts-ignore
   const [ locations, { updateLocations } ] = useLocations();
+  const [mapLoading, setMapLoading] = createSignal(false);
 
-  const loadMarkers = (refreshMap: any) => {
-    loader
+  const loadMarkers = async (refreshMap: any) => {
+    setMapLoading(true);
+    //zbugowane
+    
+      loader
       .load()
       .then((google) => {
         if (refreshMap) {
@@ -76,11 +79,12 @@ export const GoogleMap = () => {
         });
 
         markerClusters = new MarkerClusterer({ markers, map });
+        setMapLoading(false);
       })
       .catch(e => {
         console.error(e)
       });
-  }
+    }
 
   createEffect(() => {
     if (locations().length !== 0) {
@@ -89,22 +93,38 @@ export const GoogleMap = () => {
       }
 
       if (locations().data.length !== 0) {
-        loadMarkers(false)
+        loadMarkers(false);
       }
     }
   });
 
   onMount(async () => {
-    console.log(locations, "  :LOCATIONS")
     const posts = await getPosts();
     updateLocations(posts);
-
-    loadMarkers(true);
+    setMapLoading(true);
+    if(navigator.geolocation){
+      await navigator.geolocation.getCurrentPosition((position) => {
+        //@ts-ignore
+        mapOptions.center.lat = position.coords.latitude;
+        //@ts-ignore
+        mapOptions.center.lng = position.coords.longitude;
+        //@ts-ignore
+        mapOptions.zoom = 10;
+        loadMarkers(true);
+        setMapLoading(false);
+      }, (error) => {
+        mapOptions.zoom = 7;
+        loadMarkers(true);
+      });
+    }else{
+      loadMarkers(true);
+    }
   });
   return (
     <>
       {/* <button onClick={() => {console.log(locations())}}>tt</button> */}
       <MapStyle>
+        <Show when={mapLoading()}><h1>loading map...</h1></Show>
         <div id="map" />
       </MapStyle>
       {/* {locations && <h1>locations data: {JSON.stringify(locations())}</h1>} */}
