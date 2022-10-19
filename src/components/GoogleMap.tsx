@@ -31,31 +31,31 @@ const mapOptions: google.maps.MapOptions = {
 let map: any;
 let markerClusters: any;
 
-const addMarker = (position: any, label: any) => {
-  const markerOptions: google.maps.MarkerOptions = {
-    position,
-    label,
-    map
-  }
-  const marker = new google.maps.Marker(markerOptions);
-
-  const infoWindow = new google.maps.InfoWindow({
-    content: "",
-    disableAutoPan: true,
-  });
-
-  marker.addListener("click", () => {
-    infoWindow.setContent('Post od ' + label);
-    infoWindow.open(map, marker);
-  });
-
-  return marker
-}
-
 export const GoogleMap = () => {
   //@ts-ignore
   const [ locations, { updateLocations } ] = useLocations();
   const [mapLoading, setMapLoading] = createSignal(false);
+
+  const markerHandleClick = (id:Number) => {
+    const Item = locations().data.filter((i:any) => {return i.id === id})[0];
+    console.log(Item)
+  }
+
+  const addMarker = (position: any, label: any, id:any) => {
+    const markerOptions: google.maps.MarkerOptions = {
+      position,
+      label,
+      map,
+      optimized: true,
+      title: id.toString()
+    }
+    const marker = new google.maps.Marker(markerOptions);
+  
+    marker.addListener("click", () => {markerHandleClick(id)});
+  
+    return marker
+  }
+
 
   const loadMarkers = async (refreshMap: any) => {
     setMapLoading(true);
@@ -74,7 +74,7 @@ export const GoogleMap = () => {
         const markers = data.map((item: any, i: number) => {
           const position = item.geolocation;
           const label = labels[ i % labels.length ];
-          const marker = addMarker(position, label);
+          const marker = addMarker(position, label, item.id);
           return marker;
         });
 
