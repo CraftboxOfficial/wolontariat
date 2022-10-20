@@ -39,7 +39,8 @@ code {
 }
 
 input[type="email"],
-input[type="password"]{
+input[type="password"],
+textarea{
   display: block;
   margin: 5px;
 }

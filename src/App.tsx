@@ -60,12 +60,23 @@ export const App: Component = () => {
   const [ searchResult, setSearchResult ] = createSignal([]);
   const [ useOpenLayers, setUseOpenLayers ] = createSignal(false);
 
+  const [insertResult, setInsertResult] = createSignal(null);
+  const [ insertDesc, setInsertDesc ] = createSignal('');
+  const [ insertGeo, setInsertGeo ] = createSignal(null);
+
   //@ts-ignore
   const [ locations, { updateLocations } ] = useLocations();
   // const [locations, {updateLocations}] = useLocations();
 
-  const insertPost = async (text: string) => {
-    const data = await supabase.from('posts').insert({ title: text })
+  const insertPost = async (text: string, desc: string, loc: {lat: number, lng: number}) => {
+    const data = await supabase.from('posts').insert({ title: text, geolocation: loc, desc: desc })
+    if(data.error){
+      //@ts-ignore
+      setInsertResult({"data": null, "error": 'Database access denied'});
+      return null;
+    }
+    //@ts-ignore
+    setInsertResult({"data": data, "error": null});
     return data;
   }
 
@@ -107,12 +118,21 @@ export const App: Component = () => {
 
   const uploadHandler = async () => {
     setIsLoading(true);
-    await insertPost(postText()).then((res) => {
-      if (res.error)
-        console.error(res.error);
+    if(navigator.geolocation){
+      await navigator.geolocation.getCurrentPosition(async (position) => {
+        //@ts-ignore
+        await insertPost(postText(), insertDesc(), {"lat": position.coords.latitude, "lng": position.coords.longitude}).then((res) => {
+          if (res.error)
+            console.error(res.error);
+    
+          setIsLoading(false);
+        })
+      }, (error) => {
 
-      setIsLoading(false);
-    })
+      });
+    }else{
+      
+    }
   }
 
   const searchHandler = async () => {
@@ -177,7 +197,14 @@ export const App: Component = () => {
         <div class="object">
           <h2>uploadPost(text) - data inserting</h2>
           <input value={postText()} onInput={(e: any) => { setPostText(e.target.value) }}></input>
+          <textarea value={insertDesc()} onInput={(e: any) => { setInsertDesc(e.target.value) }}></textarea>
           <p>{postText()}</p>
+          <Show when={insertResult() !== null}>
+            {/*@ts-ignore*/}
+            {insertResult().error !== null && <h5 style={{color: 'tomato'}}>{insertResult().error}</h5>}
+            {/*@ts-ignore*/}
+            {insertResult().data !== null && <h5 style={{color: 'lightgreen'}}>{"Success"}</h5>}
+          </Show>
           <button onClick={uploadHandler}>post data</button>
         </div>
 

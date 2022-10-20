@@ -59,7 +59,6 @@ export const GoogleMap = () => {
 
   const loadMarkers = async (refreshMap: any) => {
     setMapLoading(true);
-    //zbugowane
     
       loader
       .load()
