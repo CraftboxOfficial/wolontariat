@@ -151,7 +151,7 @@ export const App: Component = () => {
     await supabase.storage.from('images').upload('public/' + randomName + "." + fileExtension, file, {
       cacheControl: '3600',
       upsert: true
-    }).then(async (res) => {
+    }).then((res) => {
       if(res.error){
         setIsUploading(false);
         //? setErrorMessage('File upload failed')
@@ -159,10 +159,11 @@ export const App: Component = () => {
         setInsertResult({"data": null, "error": 'File upload failed'});
         throw new Error("File upload failed")
       }
-
-      const {data} = await supabase.storage.from('images').getPublicUrl('public/' + randomName + "." + fileExtension);
-      return data.publicUrl;
     })
+
+    const {data} = await supabase.storage.from('images').getPublicUrl('public/' + randomName + "." + fileExtension);
+    console.warn(data);
+    return data.publicUrl;
   }
 
   const uploadHandler = async () => {
