@@ -171,7 +171,7 @@ export const App: Component = () => {
     if(navigator.geolocation){
       await navigator.geolocation.getCurrentPosition(async (position) => {
         await uploadFile(insertFile()).then(async (url) => {
-          await insertPost(postText(), insertDesc(), {"lat": position.coords.latitude, "lng": position.coords.longitude}, [{url}]).then((res) => {
+          await insertPost(postText(), insertDesc(), {"lat": position.coords.latitude, "lng": position.coords.longitude}, [url]).then((res) => {
             if (res.error)
               console.error(res.error);
 
