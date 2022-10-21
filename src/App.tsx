@@ -63,13 +63,15 @@ export const App: Component = () => {
   const [insertResult, setInsertResult] = createSignal(null);
   const [ insertDesc, setInsertDesc ] = createSignal('');
   const [ insertGeo, setInsertGeo ] = createSignal(null);
+  const [insertFile, setInsertFile] = createSignal(null);
+  const [isUploading, setIsUploading] = createSignal(false);
 
   //@ts-ignore
   const [ locations, { updateLocations } ] = useLocations();
   // const [locations, {updateLocations}] = useLocations();
 
-  const insertPost = async (text: string, desc: string, loc: {lat: number, lng: number}) => {
-    const data = await supabase.from('posts').insert({ title: text, geolocation: loc, desc: desc })
+  const insertPost = async (text: string, desc: string, loc: {lat: number, lng: number}, images: any[]) => {
+    const data = await supabase.from('posts').insert({ title: text, geolocation: loc, desc: desc, images: images });
     if(data.error){
       //@ts-ignore
       setInsertResult({"data": null, "error": 'Database access denied'});
@@ -116,19 +118,47 @@ export const App: Component = () => {
     })
   }
 
+  function formatFileSize(bytes:any, decimalPoint:any) {
+    if(bytes == 0) return '0 Bajtów';
+    var k = 1000,
+        dm = decimalPoint || 2,
+        sizes = ['Bajtów', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+        i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+
+  const uploadFile = async (file:any) => {
+    const fileName = file.name;
+    const fileSize = formatFileSize(file.size, 2);
+    console.log(file)
+    const fileExtension = (/[.]/.exec(fileName)) ? /[^.]+$/.exec(fileName) : undefined;
+    const randomName = crypto.randomUUID();
+    console.log('public/' + crypto.randomUUID() + "." + fileExtension)
+    await supabase.storage.from('images').upload('public/' + randomName + "." + fileExtension, file, {
+      cacheControl: '3600',
+      upsert: true
+    })
+
+    const {data} = await supabase.storage.from('images').getPublicUrl('public/' + randomName + "." + fileExtension);
+    return data.publicUrl;
+  }
+
   const uploadHandler = async () => {
-    setIsLoading(true);
+    setIsUploading(true);
     if(navigator.geolocation){
       await navigator.geolocation.getCurrentPosition(async (position) => {
-        //@ts-ignore
-        await insertPost(postText(), insertDesc(), {"lat": position.coords.latitude, "lng": position.coords.longitude}).then((res) => {
-          if (res.error)
-            console.error(res.error);
-    
-          setIsLoading(false);
+        await uploadFile(insertFile()).then(async(url) => {
+          await insertPost(postText(), insertDesc(), {"lat": position.coords.latitude, "lng": position.coords.longitude}, [{url}]).then((res) => {
+            if (res.error)
+              console.error(res.error);
+
+            console.log(res);
+      
+            setIsUploading(false);
+          })
         })
       }, (error) => {
-
+        console.error(error);
       });
     }else{
       
@@ -198,7 +228,12 @@ export const App: Component = () => {
           <h2>uploadPost(text) - data inserting</h2>
           <input value={postText()} onInput={(e: any) => { setPostText(e.target.value) }}></input>
           <textarea value={insertDesc()} onInput={(e: any) => { setInsertDesc(e.target.value) }}></textarea>
+          {/*@ts-ignore*/}
+          <input type="file"onChange={(e) => {setInsertFile(e.target.files[0])}}></input>
           <p>{postText()}</p>
+          <Show when={isUploading()}>
+              <h5>Uploading...</h5>
+          </Show>
           <Show when={insertResult() !== null}>
             {/*@ts-ignore*/}
             {insertResult().error !== null && <h5 style={{color: 'tomato'}}>{insertResult().error}</h5>}
