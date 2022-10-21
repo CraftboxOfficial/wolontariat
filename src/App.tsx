@@ -68,6 +68,9 @@ export const App: Component = () => {
 
   //@ts-ignore
   const [ locations, { updateLocations } ] = useLocations();
+
+  const MAXIMUM_FILE_SIZE = 1000000; //1 mb
+  
   // const [locations, {updateLocations}] = useLocations();
 
   const insertPost = async (text: string, desc: string, loc: {lat: number, lng: number}, images: any[]) => {
@@ -128,26 +131,45 @@ export const App: Component = () => {
   }
 
   const uploadFile = async (file:any) => {
+    // Max: 1mb
+    if(file.size > MAXIMUM_FILE_SIZE){
+      setIsUploading(false);
+      //? setErrorMessage('File size too large')
+      //@ts-ignore
+      setInsertResult({"data": null, "error": 'File too large'});
+      throw new Error("File size too large")
+    }
+      
+    
+
     const fileName = file.name;
     const fileSize = formatFileSize(file.size, 2);
-    console.log(file)
+
     const fileExtension = (/[.]/.exec(fileName)) ? /[^.]+$/.exec(fileName) : undefined;
     const randomName = crypto.randomUUID();
     console.log('public/' + crypto.randomUUID() + "." + fileExtension)
     await supabase.storage.from('images').upload('public/' + randomName + "." + fileExtension, file, {
       cacheControl: '3600',
       upsert: true
-    })
+    }).then(async (res) => {
+      if(res.error){
+        setIsUploading(false);
+        //? setErrorMessage('File upload failed')
+        //@ts-ignore
+        setInsertResult({"data": null, "error": 'File upload failed'});
+        throw new Error("File upload failed")
+      }
 
-    const {data} = await supabase.storage.from('images').getPublicUrl('public/' + randomName + "." + fileExtension);
-    return data.publicUrl;
+      const {data} = await supabase.storage.from('images').getPublicUrl('public/' + randomName + "." + fileExtension);
+      return data.publicUrl;
+    })
   }
 
   const uploadHandler = async () => {
     setIsUploading(true);
     if(navigator.geolocation){
       await navigator.geolocation.getCurrentPosition(async (position) => {
-        await uploadFile(insertFile()).then(async(url) => {
+        await uploadFile(insertFile()).then(async (url) => {
           await insertPost(postText(), insertDesc(), {"lat": position.coords.latitude, "lng": position.coords.longitude}, [{url}]).then((res) => {
             if (res.error)
               console.error(res.error);
