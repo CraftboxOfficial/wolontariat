@@ -13,6 +13,10 @@ import { styled } from 'solid-styled-components';
 import { PostPage } from './pages/Post';
 import { PageNavigator } from './components/PageNavigator';
 import { MapPage } from './pages/Map';
+
+import { HomePage } from './pages/Home';
+import { CreatePostPage } from './pages/CreatePost';
+
 import UserComponent  from './components/UserComponent';
 //@ts-ignore
 //import {convertToReactComponent,ReactToSolidBridge,ReactToSolidBridgeProvider} from 'react-solid-bridge'
@@ -20,6 +24,7 @@ import UserComponent  from './components/UserComponent';
 //import Autocomplete from "react-google-autocomplete";
 
 //const SolidAutoComplete = convertToReactComponent(Autocomplete)
+
 
 export interface PostI {
   id: number,
@@ -91,6 +96,7 @@ export const App: Component = () => {
 
   // Można raz wykonać requesta do bazy danych po posty i potem nimi manipulować przez createSignal.
   const searchPostLocally = async (text: string) => {
+    //@ts-ignore
     const data: FetchedPosts = initialData().length == 0 ? await supabase.from('posts').select() : initialData()
     const array = data.data;
     const filteredResult = array.filter((post: any) => post.title.toLowerCase().includes(text.toLowerCase()));
@@ -100,11 +106,13 @@ export const App: Component = () => {
   // Albo wykonywać request za każdym razem.
   const searchPost = async (text: string) => {
     const data = await supabase.from('posts').select().like('title', `%${text}%`)
+    //@ts-ignore
     return data.data as FetchedPosts;
   }
 
   onMount(async () => {
     const data = await supabase.from('posts').select();
+    //@ts-ignore
     setInitialData(data);
     console.trace(data);
     console.trace(initialData())
@@ -227,11 +235,10 @@ export const App: Component = () => {
     <>
       {/* <AppStyle>
         <Routes>
-          <Route path={"/"} component={MapPage} />
-          <Route path={"/search"} component={PostsPage} />
+          <Route path={"/"} component={HomePage} />
           <Route path={"/post/:postId"} component={PostPage} />
+          <Route path={"/create-post"} component={CreatePostPage} />
         </Routes>
-        <PageNavigator />
       </AppStyle>
     </> */}
       <div>
@@ -301,8 +308,9 @@ export default App;
 
 const AppStyle = styled("div")(() => {
   return {
-    height: "100vh",
-    maxHeight: "100vh",
+    // height: "100%",
+    // maxHeight: "100%",
     // display: "flex"
+    width: "100%",
   }
 })
