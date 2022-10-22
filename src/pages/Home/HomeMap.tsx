@@ -1,7 +1,6 @@
-import { Accessor, Component, createSignal, onMount, Show, Setter, JSX } from 'solid-js';
+import { Accessor, Component, JSX } from 'solid-js';
 import { styled } from 'solid-styled-components';
-import { useNavigate } from 'solid-app-router';
-import { FetchedPosts, getPosts } from '../../App';
+import { FetchedPosts } from '../../App';
 import { GoogleMap } from '../../components/GoogleMap';
 
 

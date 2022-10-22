@@ -1,7 +1,7 @@
-import { Component, Show } from "solid-js";
+import { useNavigate } from 'solid-app-router';
+import { Component } from "solid-js";
 import { styled } from 'solid-styled-components';
 import { PostI } from "../../App";
-import { useNavigate } from 'solid-app-router';
 
 
 

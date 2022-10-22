@@ -1,29 +1,13 @@
-import logo from './logo.svg';
-import styles from './App.module.css';
-import { createSignal, onMount, For, Show, createContext, useContext, Component } from 'solid-js';
+import { Component, createSignal, onMount } from 'solid-js';
 //@ts-ignore
-import { supabase } from './supabaseClient'
-import {GoogleMap} from './components/GoogleMap';
-import { Loader } from '@googlemaps/js-api-loader';
-import { MarkerClusterer } from "@googlemaps/markerclusterer";
-import { LocationsProvider, useLocations } from './LocationsProvider';
 import { Route, Routes } from 'solid-app-router';
-import { PostsPage } from './pages/Posts';
 import { styled } from 'solid-styled-components';
+import { useLocations } from './LocationsProvider';
 import { PostPage } from './pages/Post';
-import { PageNavigator } from './components/PageNavigator';
-import { MapPage } from './pages/Map';
+import { supabase } from './supabaseClient';
 
+import { CreatePostPage } from './pages/CreatePost';
 import { HomePage } from './pages/Home';
-//import { CreatePostPage } from './pages/CreatePost';
-
-import UserComponent  from './components/UserComponent';
-//@ts-ignore
-//import {convertToReactComponent,ReactToSolidBridge,ReactToSolidBridgeProvider} from 'react-solid-bridge'
-//@ts-ignore
-//import Autocomplete from "react-google-autocomplete";
-
-//const SolidAutoComplete = convertToReactComponent(Autocomplete)
 
 
 export interface PostI {
@@ -70,26 +54,26 @@ export const App: Component = () => {
   const [ searchText, setSearchText ] = createSignal('');
   const [ searchResult, setSearchResult ] = createSignal([]);
 
-  const [insertResult, setInsertResult] = createSignal(null);
+  const [ insertResult, setInsertResult ] = createSignal(null);
   const [ insertDesc, setInsertDesc ] = createSignal('');
   const [ insertGeoCode, setInsertGeoCode ] = createSignal('');
-  const [insertFile, setInsertFile] = createSignal(null);
-  const [isUploading, setIsUploading] = createSignal(false);
+  const [ insertFile, setInsertFile ] = createSignal(null);
+  const [ isUploading, setIsUploading ] = createSignal(false);
 
   //@ts-ignore
   const [ locations, { updateLocations } ] = useLocations();
 
   const MAXIMUM_FILE_SIZE = 1000000; //1 mb
 
-  const insertPost = async (text: string, desc: string, loc: {lat: number, lng: number}, images: any[]) => {
+  const insertPost = async (text: string, desc: string, loc: { lat: number, lng: number }, images: any[]) => {
     const data = await supabase.from('posts').insert({ title: text, geolocation: loc, desc: desc, images: images });
-    if(data.error){
+    if (data.error) {
       //@ts-ignore
-      setInsertResult({"data": null, "error": 'Database access denied'});
+      setInsertResult({ "data": null, "error": 'Database access denied' });
       return null;
     }
     //@ts-ignore
-    setInsertResult({"data": data, "error": null});
+    setInsertResult({ "data": data, "error": null });
     return data;
   }
 
@@ -132,13 +116,13 @@ export const App: Component = () => {
     })
   }
 
-  function formatFileSize(bytes:any, decimalPoint:any) {
-    if(bytes == 0) return '0 Bajtów';
+  function formatFileSize(bytes: any, decimalPoint: any) {
+    if (bytes == 0) return '0 Bajtów';
     var k = 1000,
-        dm = decimalPoint || 2,
-        sizes = ['Bajtów', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-        i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+      dm = decimalPoint || 2,
+      sizes = [ 'Bajtów', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ],
+      i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[ i ];
   }
 
   const getGeoCode = async () => {
@@ -149,15 +133,15 @@ export const App: Component = () => {
    * It takes a file, uploads it to supabase, and returns the public url of the file
    * @param {any} file - the file to be uploaded
   */
-  const uploadFile = async (file:any) => {
-    if(file === null)
-      return;  
+  const uploadFile = async (file: any) => {
+    if (file === null)
+      return;
 
     // Max: 1mb
-    if(file.size > MAXIMUM_FILE_SIZE){
+    if (file.size > MAXIMUM_FILE_SIZE) {
       setIsUploading(false);
       //@ts-ignore
-      setInsertResult({"data": null, "error": 'File too large'});
+      setInsertResult({ "data": null, "error": 'File too large' });
       throw new Error("File size too large")
     }
 
@@ -171,34 +155,36 @@ export const App: Component = () => {
       cacheControl: '3600',
       upsert: true
     }).then((res) => {
-      if(res.error){
+      if (res.error) {
         setIsUploading(false);
         //@ts-ignore
-        setInsertResult({"data": null, "error": 'File upload failed'});
+        setInsertResult({ "data": null, "error": 'File upload failed' });
         throw new Error("File upload failed")
       }
     })
 
-    const {data} = await supabase.storage.from('images').getPublicUrl('public/' + randomName + "." + fileExtension);
+    const { data } = await supabase.storage.from('images').getPublicUrl('public/' + randomName + "." + fileExtension);
     return data.publicUrl;
   }
 
   const uploadHandler = async () => {
     setIsUploading(true);
-    if(navigator.geolocation){
+    if (navigator.geolocation) {
       await navigator.geolocation.getCurrentPosition(async (position) => {
         await uploadFile(insertFile()).then(async (url) => {
-          await insertPost(postText(), insertDesc(), {"lat": position.coords.latitude, "lng": position.coords.longitude}, url !== undefined ? [url] : []).then((res) => {
+          await insertPost(postText(), insertDesc(), { "lat": position.coords.latitude, "lng": position.coords.longitude }, url !== undefined ? [ url ] : []).then((res) => {
+            //@ts-ignore
             if (res.error)
+              //@ts-ignore
               console.error(res.error);
-      
+
             setIsUploading(false);
           })
         })
       }, (error) => {
         console.error(error);
       });
-    }else{
+    } else {
       console.error('Browser does not support geolocation');
     }
   }
@@ -236,82 +222,17 @@ export const App: Component = () => {
         <Routes>
           <Route path={"/"} component={HomePage} />
           <Route path={"/post/:postId"} component={PostPage} />
-          {/* <Route path={"/create-post"} component={CreatePostPage} /> */}
+          <Route path={"/create-post"} component={CreatePostPage} />
         </Routes>
       </AppStyle>
     </>
-  );
-      {/* <div>
-        <Show when={isLoading()}>
-          <h1>Loading...</h1>
-        </Show>
-        <button onClick={clearMarkers}>delete clusters</button>
-        <button onClick={loadMarkersManual}>load manual</button>
-          {/* <SolidAutoComplete   
-            apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-            onPlaceSelected={(place:any) => {
-              console.log(place);
-            }}/> 
-        <Show when={initialData() !== undefined}>
-          <GoogleMap />
-        </Show>
-        <UserComponent />
-        <div class="object">
-          <h2>getPosts() - data fetching</h2>
-          <ul>
-            <For each={data()} fallback={<h5>No data</h5>}>
-              {(post) => <li>{post}</li>}
-            </For>
-          </ul>
-          <button onClick={fetchHandler}>get data</button>
-        </div>
-
-        <div class="object">
-          <h2>uploadPost(text) - data inserting</h2>
-          <input value={postText()} onInput={(e: any) => { setPostText(e.target.value) }}></input>
-          <textarea value={insertDesc()} onInput={(e: any) => { setInsertDesc(e.target.value) }}></textarea>
-
-          <input type="text" value={insertGeoCode()} onInput={(e: any) => { setInsertGeoCode(e.target.value) }}></input>
-          {/*@ts-ignore*/}
-          
-    //       <input type="file"onChange={(e) => {setInsertFile(e.target.files[0])}}></input>
-    //       <p>{postText()}</p>
-    //       <Show when={isUploading()}>
-    //           <h5>Uploading...</h5>
-    //       </Show>
-    //       <Show when={insertResult() !== null}>
-    //         {/*@ts-ignore*/}
-    //         {insertResult().error !== null && <h5 style={{color: 'tomato'}}>{insertResult().error}</h5>}
-    //         {/*@ts-ignore*/}
-    //         {insertResult().data !== null && <h5 style={{color: 'lightgreen'}}>{"Success"}</h5>}
-    //       </Show>
-    //       <button onClick={uploadHandler}>post data</button>
-    //     </div>
-
-    //     <div class="object">
-    //       <h2>searchPost(text) - data searching</h2>
-    //       <input value={searchText()} onInput={(e: any) => { setSearchText(e.target.value) }}></input>
-    //       {searchResult() &&
-    //         <ul>
-    //           <For each={searchResult()} fallback={<h5>No data</h5>}>
-    //             {(post) => <li>{post}</li>}
-    //           </For>
-    //         </ul>
-    //       }
-    //       <p>{searchText()}</p>
-    //       <button onClick={searchHandler}>search data</button>
-    //     </div>
-    //   </div> 
-    // </>
-  //);
+  )
 }
 export default App;
 
 const AppStyle = styled("div")(() => {
   return {
-    // height: "100%",
-    // maxHeight: "100%",
-    // display: "flex"
     width: "100%",
+    color: "#FFFFFF"
   }
 })
