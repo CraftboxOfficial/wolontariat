@@ -1,12 +1,16 @@
 @import "../node_modules/ol/ol.css";
 
 html {
-  height: 100vh;
-  width: 100vw;
+  /* margin: 0;
+  padding: 0; */
   /* overflow: hidden; */
+  margin: 0;
+  padding: 0;
+  /* width: 90vw; */
 }
 
 body {
+  background-color: #2B2B2B;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -20,13 +24,13 @@ code {
     monospace;
 }
 
-.object {
+/* .object {
   border: 1px dotted red;
   margin: 20px;
   padding: 5px;
-}
+} */
 
-#map {
+/* #map {
   height: 102vh;
   width: 100vw;
   margin: 0;
@@ -38,4 +42,4 @@ code {
 #map.showed {
   opacity: 1;
   transition: 0.3s;
-}
+} */
