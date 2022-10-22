@@ -7,6 +7,7 @@ import { GoogleMap } from '../components/GoogleMap';
 import { HomePost } from './Home/HomePost';
 import { MapPage } from './Map';
 import { HomeMap } from './Home/HomeMap';
+import { LocationsProvider, useLocations } from '../LocationsProvider';
 
 
 
@@ -28,6 +29,7 @@ export const HomePage: Component = (props) => {
 
 
 	const [ searchInput, setSearchInput ] = createSignal("")
+	const [ locations, { updateLocations } ] = useLocations();
 
 	let typingTimer: NodeJS.Timeout
 	const doneTypingInterval = 300
@@ -48,6 +50,7 @@ export const HomePage: Component = (props) => {
 
 			searchPostByTitle(searchInput()).then((r) => {
 				console.log(r)
+				updateLocations({"data": r});
 				setPosts(r)
 			})
 
