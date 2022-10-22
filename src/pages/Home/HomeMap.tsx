@@ -1,4 +1,4 @@
-import { Accessor, Component, createSignal, onMount, Show, Setter } from 'solid-js';
+import { Accessor, Component, createSignal, onMount, Show, Setter, JSX } from 'solid-js';
 import { styled } from 'solid-styled-components';
 import { useNavigate } from 'solid-app-router';
 import { FetchedPosts, getPosts } from '../../App';
@@ -6,11 +6,11 @@ import { GoogleMap } from '../../components/GoogleMap';
 
 
 
-export const HomeMap: Component<{ data: Accessor<FetchedPosts | undefined> }> = (props) => {
+export const HomeMap: Component<{ data: Accessor<FetchedPosts | undefined>, style: JSX.CSSProperties }> = (props) => {
 
 	return (
 		<>
-			<HomeMapStyle>
+			<HomeMapStyle style={props.style}>
 				{/* <Show when={props.data()}> */}
 				{/* TEMP DISABLED */}
 				<GoogleMap />

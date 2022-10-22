@@ -12,6 +12,8 @@ import { HomeMap } from './Home/HomeMap';
 
 export const HomePage: Component = (props) => {
 
+	const navigate = useNavigate()
+
 	const [ showMap, setShowMap ] = createSignal(false)
 
 	const [ initialData, setInitialData ]: [ Accessor<FetchedPosts | undefined>, Setter<FetchedPosts | undefined> ] = createSignal();
@@ -54,6 +56,7 @@ export const HomePage: Component = (props) => {
 		}
 	})
 
+
 	return (
 		<>
 			<HomeStyle>
@@ -67,24 +70,10 @@ export const HomePage: Component = (props) => {
 					</div>
 				</div>
 
-				<Show when={showMap()} fallback={
-					<>
-						<div id="posts">
-							<Show when={posts().length > 0} fallback={
-								<>
-									<For each={initialData()?.data}>
-										{(post) => {
-											return (
-												<>
-													<HomePost post={post} />
-												</>
-											)
-										}}
-									</For>
-								</>
-							}>
-							</Show>
-							<For each={posts()}>
+				<div id="posts" style={{display: showMap() ? "none" : "flex"}}>
+					<Show when={posts().length > 0} fallback={
+						<>
+							<For each={initialData()?.data}>
 								{(post) => {
 									return (
 										<>
@@ -93,17 +82,24 @@ export const HomePage: Component = (props) => {
 									)
 								}}
 							</For>
-						</div>
-					</>
-				}>
-					<>
-						<HomeMap data={initialData} />
-					</>
-				</Show>
+						</>
+					}>
+					</Show>
+					<For each={posts()}>
+						{(post) => {
+							return (
+								<>
+									<HomePost post={post} />
+								</>
+							)
+						}}
+					</For>
+				</div>
+				<HomeMap data={initialData} style={{ display: showMap() ? "block" : "none" }} />
 
 				<div id='bottom-buttons'>
 					<button onClick={(e) => setShowMap((prev) => !prev)}>{showMap() ? "LIST" : "MAP"}</button>
-					<button>ADD POST</button>
+					<button onClick={(e) => { navigate("/create-post") }}>ADD POST</button>
 				</div>
 			</HomeStyle>
 		</>
