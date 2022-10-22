@@ -33,7 +33,7 @@ export default defineConfig({
   })],
   server: {
     port: 3000,
-    https: false
+    https: true
   },
   build: {
     target: 'esnext',
