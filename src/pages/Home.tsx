@@ -5,10 +5,14 @@ import { supabase } from "../supabaseClient";
 import { getPosts, FetchedPosts, PostI, searchPostByTitle } from '../App';
 import { GoogleMap } from '../components/GoogleMap';
 import { HomePost } from './Home/HomePost';
+import { MapPage } from './Map';
+import { HomeMap } from './Home/HomeMap';
 
 
 
 export const HomePage: Component = (props) => {
+
+	const [ showMap, setShowMap ] = createSignal(false)
 
 	const [ initialData, setInitialData ]: [ Accessor<FetchedPosts | undefined>, Setter<FetchedPosts | undefined> ] = createSignal();
 
@@ -50,10 +54,6 @@ export const HomePage: Component = (props) => {
 		}
 	})
 
-	createEffect(() => {
-		console.log(posts())
-	})
-
 	return (
 		<>
 			<HomeStyle>
@@ -67,10 +67,24 @@ export const HomePage: Component = (props) => {
 					</div>
 				</div>
 
-				<div id="posts">
-					<Show when={posts().length > 0} fallback={
-						<>
-							<For each={initialData()?.data}>
+				<Show when={showMap()} fallback={
+					<>
+						<div id="posts">
+							<Show when={posts().length > 0} fallback={
+								<>
+									<For each={initialData()?.data}>
+										{(post) => {
+											return (
+												<>
+													<HomePost post={post} />
+												</>
+											)
+										}}
+									</For>
+								</>
+							}>
+							</Show>
+							<For each={posts()}>
 								{(post) => {
 									return (
 										<>
@@ -79,18 +93,17 @@ export const HomePage: Component = (props) => {
 									)
 								}}
 							</For>
-						</>
-					}>
-					</Show>
-					<For each={posts()}>
-						{(post) => {
-							return (
-								<>
-									<HomePost post={post} />
-								</>
-							)
-						}}
-					</For>
+						</div>
+					</>
+				}>
+					<>
+						<HomeMap data={initialData} />
+					</>
+				</Show>
+
+				<div id='bottom-buttons'>
+					<button onClick={(e) => setShowMap((prev) => !prev)}>{showMap() ? "LIST" : "MAP"}</button>
+					<button>ADD POST</button>
 				</div>
 			</HomeStyle>
 		</>
@@ -103,7 +116,9 @@ const HomeStyle = styled("div")(() => {
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "center",
-		// alignContent: "center",
+
+		// overflow: "hidden",
+
 
 		"#posts": {
 
@@ -114,10 +129,11 @@ const HomeStyle = styled("div")(() => {
 			margin: "0 10px",
 			// marginLeft: "10px",
 			// marginRight: "10px"
-
+			overflow: "auto",
 		},
 
 		"#top": {
+			zIndex: "10",
 			width: "100%",
 			padding: "24px 0",
 			// height: "100px",
@@ -149,6 +165,28 @@ const HomeStyle = styled("div")(() => {
 					// height: "100%"
 				}
 			}
+		},
+
+		"#bottom-buttons": {
+			zIndex: "10",
+			position: "fixed",
+			bottom: "0",
+			width: "100%",
+			height: "140px",
+			display: "flex",
+			flexDirection: "row",
+			alignItems: "center",
+			justifyContent: "space-between",
+
+			button: {
+				aspectRatio: "1 / 1",
+				width: "20%",
+				maxWidth: "80px",
+				margin: "5%",
+				borderRadius: "25%",
+				border: "none"
+			},
+
 		}
 	}
 })
