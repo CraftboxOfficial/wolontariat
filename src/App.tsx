@@ -184,5 +184,6 @@ const AppStyle = styled("div")(() => {
     // maxHeight: "100%",
     // display: "flex"
     width: "100%",
+    color: "#FFFFFF"
   }
 })
