@@ -35,15 +35,7 @@ export const HomePost: Component<{ post: PostI }> = (props) => {
 						</button>
 					</div>
 				</div>
-				{/* <span>{props.post.created_at}</span> */}
-				{/* <Show when={props.post.images[ 0 ]} fallback={
-					<div id="img"></div>
-				}>
-					<img id="img" src={props.post.images[ 0 ]}></img>
-				</Show>
-				<div id="overlay">
-					<span>{props.post.title}</span>
-				</div> */}
+
 			</HomePostStyle>
 		</>
 	)

@@ -15,6 +15,8 @@ import { PostPage } from './pages/Post';
 import { PageNavigator } from './components/PageNavigator';
 import { MapPage } from './pages/Map';
 import { HomePage } from './pages/Home';
+import { CreatePostPage } from './pages/CreatePost';
+import { GoogleMap } from './components/GoogleMap';
 
 export interface PostI {
   id: number,
@@ -89,6 +91,7 @@ export const App: Component = () => {
 
   // Można raz wykonać requesta do bazy danych po posty i potem nimi manipulować przez createSignal.
   const searchPostLocally = async (text: string) => {
+    //@ts-ignore
     const data: FetchedPosts = initialData().length == 0 ? await supabase.from('posts').select() : initialData()
     const array = data.data;
     const filteredResult = array.filter((post: any) => post.title.toLowerCase().includes(text.toLowerCase()));
@@ -98,11 +101,13 @@ export const App: Component = () => {
   // Albo wykonywać request za każdym razem.
   const searchPost = async (text: string) => {
     const data = await supabase.from('posts').select().like('title', `%${text}%`)
+    //@ts-ignore
     return data.data as FetchedPosts;
   }
 
   onMount(async () => {
     const data = await supabase.from('posts').select();
+    //@ts-ignore
     setInitialData(data);
     console.log(data);
     console.warn(initialData())
@@ -164,8 +169,8 @@ export const App: Component = () => {
       <AppStyle>
         <Routes>
           <Route path={"/"} component={HomePage} />
-          <Route path={"/search"} component={PostsPage} />
           <Route path={"/post/:postId"} component={PostPage} />
+          <Route path={"/create-post"} component={CreatePostPage} />
         </Routes>
       </AppStyle>
     </>
@@ -178,6 +183,6 @@ const AppStyle = styled("div")(() => {
     // height: "100%",
     // maxHeight: "100%",
     // display: "flex"
-    width: "100%"
+    width: "100%",
   }
 })
