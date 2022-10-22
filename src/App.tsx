@@ -14,6 +14,12 @@ import { PostPage } from './pages/Post';
 import { PageNavigator } from './components/PageNavigator';
 import { MapPage } from './pages/Map';
 import UserComponent  from './components/UserComponent';
+//@ts-ignore
+//import {convertToReactComponent,ReactToSolidBridge,ReactToSolidBridgeProvider} from 'react-solid-bridge'
+//@ts-ignore
+//import Autocomplete from "react-google-autocomplete";
+
+//const SolidAutoComplete = convertToReactComponent(Autocomplete)
 
 export interface PostI {
   id: number,
@@ -62,7 +68,7 @@ export const App: Component = () => {
 
   const [insertResult, setInsertResult] = createSignal(null);
   const [ insertDesc, setInsertDesc ] = createSignal('');
-  const [ insertGeo, setInsertGeo ] = createSignal(null);
+  const [ insertGeoCode, setInsertGeoCode ] = createSignal('');
   const [insertFile, setInsertFile] = createSignal(null);
   const [isUploading, setIsUploading] = createSignal(false);
 
@@ -128,14 +134,17 @@ export const App: Component = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   }
 
+  const getGeoCode = async () => {
+
+  }
+
   /**
    * It takes a file, uploads it to supabase, and returns the public url of the file
    * @param {any} file - the file to be uploaded
   */
   const uploadFile = async (file:any) => {
     if(file === null)
-      return;
-    
+      return;  
 
     // Max: 1mb
     if(file.size > MAXIMUM_FILE_SIZE){
@@ -144,8 +153,6 @@ export const App: Component = () => {
       setInsertResult({"data": null, "error": 'File too large'});
       throw new Error("File size too large")
     }
-      
-    
 
     const fileName = file.name;
     const fileSize = formatFileSize(file.size, 2);
@@ -194,6 +201,7 @@ export const App: Component = () => {
     await searchPostLocally(searchText()).then((res) => {
       console.log(res);
       const data = res;
+      updateLocations({ "data": res })
       let dataObject: any[] = [];
       data.map((post: PostI) => {
         dataObject.push(post.title);
@@ -232,11 +240,14 @@ export const App: Component = () => {
         </Show>
         <button onClick={clearMarkers}>delete clusters</button>
         <button onClick={loadMarkersManual}>load manual</button>
-        {!useOpenLayers() && (
-          <Show when={initialData() !== undefined}>
-            <GoogleMap />
-          </Show>)
-        }
+          {/* <SolidAutoComplete   
+            apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+            onPlaceSelected={(place:any) => {
+              console.log(place);
+            }}/> */}
+        <Show when={initialData() !== undefined}>
+          <GoogleMap />
+        </Show>
         <UserComponent />
         <div class="object">
           <h2>getPosts() - data fetching</h2>
@@ -252,6 +263,8 @@ export const App: Component = () => {
           <h2>uploadPost(text) - data inserting</h2>
           <input value={postText()} onInput={(e: any) => { setPostText(e.target.value) }}></input>
           <textarea value={insertDesc()} onInput={(e: any) => { setInsertDesc(e.target.value) }}></textarea>
+
+          <input type="text" value={insertGeoCode()} onInput={(e: any) => { setInsertGeoCode(e.target.value) }}></input>
           {/*@ts-ignore*/}
           <input type="file"onChange={(e) => {setInsertFile(e.target.files[0])}}></input>
           <p>{postText()}</p>
