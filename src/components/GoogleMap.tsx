@@ -41,10 +41,9 @@ export const GoogleMap = () => {
     console.log(Item)
   }
 
-  const addMarker = (position: any, label: any, id:any) => {
+  const addMarker = (position: any, id:any) => {
     const markerOptions: google.maps.MarkerOptions = {
       position,
-      label,
       map,
       optimized: true,
       title: id.toString()
@@ -68,12 +67,11 @@ export const GoogleMap = () => {
           document.getElementById('map')?.classList.add('showed')
         }
         console.log(google)
-        const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
         const data = locations().data;
         const markers = data.map((item: any, i: number) => {
           const position = item.geolocation;
-          const label = labels[ i % labels.length ];
-          const marker = addMarker(position, label, item.id);
+          const marker = addMarker(position, item.id);
           return marker;
         });
 
