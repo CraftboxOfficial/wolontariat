@@ -9,36 +9,24 @@ import { BsCalendarDateFill } from 'solid-icons/bs'
 import { IconText } from '../../components/IconText';
 
 
-export const HomePost: Component<{ post: PostI, class?: string }> = (props) => {
+export const SkeletonPost: Component<{ class?: string }> = (props) => {
 
 	const navigate = useNavigate()
 
 
 	return (
 		<>
-			<HomePostStyle class={props.class} onClick={() => navigate(`/post/${props.post.id}`)}>
-				<img class="post-image" src={props.post.images[ 0 ]}></img>
+			<HomePostStyle class={props.class}>
+				<div class="post-image"></div>
 				<div class="content">
 					<div class="top">
-						<span class="title">{props.post.title || "title"}</span>
+						<span class="title"></span>
 						<div class="tags">
 							{/* <span>TAGS</span> */}
 						</div>
 					</div>
 					<div class="bottom">
 						<div class="left">
-
-							{/* <span><FaSolidLocationDot /> {props.post.address !== null ? props.post.address : 'Nieznany'}</span>
-							<span><BsCalendarDateFill /> {props.post.created_at !== null ? props.post.created_at.toString() : 'unknown'}</span> */}
-							<IconText>
-								<FaSolidLocationDot />
-								<span style={{ "margin-left": "5px" }}>{props.post.address ? props.post.address : 'Nieznany'}</span>
-							</IconText>
-							<IconText>
-								<BsCalendarDateFill />
-								<span style={{ "margin-left": "5px" }}>{props.post.created_at ? props.post.created_at.toString() : 'unknown'}</span>
-							</IconText>
-
 						</div>
 					</div>
 				</div>
@@ -110,6 +98,24 @@ const HomePostStyle = styled("div")(() => {
 					width: "100%",
 					fontSize: "80%",
 				}
+			}
+		},
+
+		animationName: "skeleton-loading",
+		animationDuration: "3s",
+		animationIterationCount: "infinite",
+
+		"@keyframes skeleton-loading": {
+			"0%": {
+				backgroundColor: "#383838"
+			},
+
+			"50%": {
+				backgroundColor: "#555555"
+			},
+
+			"100%": {
+				backgroundColor: "#383838"
 			}
 		}
 	}

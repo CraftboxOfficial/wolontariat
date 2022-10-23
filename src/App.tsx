@@ -246,6 +246,8 @@ export default App;
 const AppStyle = styled("div")(() => {
   return {
     width: "100%",
-    color: "#FFFFFF"
+    height: "100vh",
+    color: "#FFFFFF",
+    overflow: "auto"
   }
 })
