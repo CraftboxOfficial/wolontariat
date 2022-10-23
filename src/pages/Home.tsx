@@ -21,7 +21,8 @@ export const HomePage: Component = (props) => {
 
 	onMount(async () => {
 		const data = await getPosts()
-		setInitialData(data)
+		//@ts-ignore
+		setPosts(data.data?.sort((a:any,b:any) => {return b.id - a.id}))
 	});
 
 
@@ -31,6 +32,7 @@ export const HomePage: Component = (props) => {
 	const [ searchInput, setSearchInput ] = createSignal("")
 	//@ts-ignore
 	const [ locations, { updateLocations } ] = useLocations();
+	const [sortingOperation, setSortingOperation] = createSignal('new');
 
 	let typingTimer: NodeJS.Timeout
 	const doneTypingInterval = 300
@@ -47,17 +49,51 @@ export const HomePage: Component = (props) => {
 	}
 
 	createEffect(() => {
+		const operation = sortingOperation();
+		const current = posts();
+		let modified: PostI[] = [];
+		switch(operation){
+			case 'new':
+				modified = current.sort((a:any,b:any) => {return b.id - a.id})
+				break;
+			case 'old':
+				modified = current.sort((a:any,b:any) => {return a.id - b.id})
+				break;
+		}
+		updateLocations({ "data": modified });
+		setPosts(modified)
+	});
+
+	createEffect(() => {
 		if (searchInput()) {
 			searchPostByTitle(searchInput()).then((r) => {
+				let modified = r;
+				switch(sortingOperation()){
+					case 'new':
+						modified = r.sort((a:any,b:any) => {return b.id - a.id})
+						break;
+					case 'old':
+						modified = r.sort((a:any,b:any) => {return a.id - b.id})
+						break;
+				}
 				console.log(r)
-				updateLocations({ "data": r });
-				setPosts(r)
+				updateLocations({ "data": modified });
+				setPosts(modified)
 			})
 
 		} else {
-			setPosts([])
 			searchPostByTitle("").then((r) => {
-				updateLocations({ "data": r });
+				let modified = r;
+				switch(sortingOperation()){
+					case 'new':
+						modified = r.sort((a:any,b:any) => {return b.id - a.id})
+						break;
+					case 'old':
+						modified = r.sort((a:any,b:any) => {return a.id - b.id})
+						break;
+				}
+				updateLocations({ "data": modified });
+				setPosts(modified)
 			})
 		}
 	})
@@ -69,6 +105,23 @@ export const HomePage: Component = (props) => {
 			window.scrollTo(0, 0)
 		}
 	})
+
+	const handleSortingChange = (e:any) => {
+		const option = e.currentTarget.value;
+		setSortingOperation(option);
+		
+		let modified = posts();
+		switch(sortingOperation()){
+			case 'new':
+				modified = modified.sort((a:any,b:any) => {return b.id - a.id})
+				break;
+			case 'old':
+				modified = modified.sort((a:any,b:any) => {return a.id - b.id})
+				break;
+		}
+		updateLocations({ "data": modified });
+		setPosts(modified)
+	}
 
 	return (
 		<>
@@ -91,13 +144,17 @@ export const HomePage: Component = (props) => {
 							clearTimeout(typingTimer)
 							typingTimer = setTimeout(stoppedTyping, doneTypingInterval)
 						}} placeholder="Szukaj..."></input>
+						<select onChange={handleSortingChange}>
+							<option value="new">Nowe</option>
+							<option value="old">Stare</option>
+						</select>
 					</div>
 				</div>
 
 				<div id="posts" style={{ display: showMap() ? "none" : "flex" }}>
 					<Show when={searchInput().length > 0} fallback={
 						<>
-							<For each={initialData()?.data} fallback={
+							<For each={posts()} fallback={
 								<>
 									<SkeletonPost />
 									<SkeletonPost />
