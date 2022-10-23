@@ -63,7 +63,7 @@ export const App: Component = () => {
   //@ts-ignore
   const [ locations, { updateLocations } ] = useLocations();
 
-  const MAXIMUM_FILE_SIZE = 1000000; //1 mb
+  const MAXIMUM_FILE_SIZE = 5000000; //1 mb
 
   const insertPost = async (text: string, desc: string, loc: { lat: number, lng: number }, images: any[]) => {
     const data = await supabase.from('posts').insert({ title: text, geolocation: loc, desc: desc, images: images });
@@ -101,7 +101,7 @@ export const App: Component = () => {
       email: 'komiyi3831@cadolls.com',
       password: 'demouser1',
     }).then((res) => {
-      if(res.error){
+      if (res.error) {
         console.error(res.error)
       }
     })
