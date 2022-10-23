@@ -48,7 +48,6 @@ export const HomePage: Component = (props) => {
 
 	createEffect(() => {
 		if (searchInput()) {
-			console.log(searchInput())
 			searchPostByTitle(searchInput()).then((r) => {
 				console.log(r)
 				updateLocations({ "data": r });
@@ -57,6 +56,9 @@ export const HomePage: Component = (props) => {
 
 		} else {
 			setPosts([])
+			searchPostByTitle("").then((r) => {
+				updateLocations({ "data": r });
+			})
 		}
 	})
 
@@ -93,7 +95,7 @@ export const HomePage: Component = (props) => {
 				</div>
 
 				<div id="posts" style={{ display: showMap() ? "none" : "flex" }}>
-					<Show when={posts().length > 0} fallback={
+					<Show when={searchInput().length > 0} fallback={
 						<>
 							<For each={initialData()?.data} fallback={
 								<>
@@ -116,11 +118,7 @@ export const HomePage: Component = (props) => {
 					}>
 						<For each={posts()} fallback={
 							<>
-								<SkeletonPost />
-								<SkeletonPost />
-								<SkeletonPost />
-								<SkeletonPost />
-								<SkeletonPost />
+								<span>Nic nie mogliśmy znaleźć</span>
 							</>
 						}>
 							{(post) => {
