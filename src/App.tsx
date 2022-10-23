@@ -9,7 +9,6 @@ import { supabase } from './supabaseClient';
 import { CreatePostPage } from './pages/CreatePost';
 import { HomePage } from './pages/Home';
 
-
 export interface PostI {
   id: number,
   created_at: Date,
@@ -19,7 +18,8 @@ export interface PostI {
     lng: number
   },
   desc: string,
-  images: string[]
+  images: string[],
+  address: string
 }
 
 export interface FetchedPosts {
@@ -95,6 +95,17 @@ export const App: Component = () => {
 
   onMount(async () => {
     const data = await supabase.from('posts').select();
+
+    // Demo user login (żeby mógł tworzyc posty).
+    await supabase.auth.signInWithPassword({
+      email: 'komiyi3831@cadolls.com',
+      password: 'demouser1',
+    }).then((res) => {
+      if(res.error){
+        console.error(res.error)
+      }
+    })
+
     //@ts-ignore
     setInitialData(data);
     console.trace(data);
@@ -124,6 +135,7 @@ export const App: Component = () => {
       i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[ i ];
   }
+
 
   const getGeoCode = async () => {
 
@@ -188,6 +200,7 @@ export const App: Component = () => {
       console.error('Browser does not support geolocation');
     }
   }
+
 
   const searchHandler = async () => {
     setIsLoading(true);
