@@ -2,10 +2,13 @@ import { Accessor, Component, createEffect, createSignal, JSXElement, onMount, S
 import { styled } from 'solid-styled-components';
 import { FetchedPosts, getPosts } from '../App';
 import { BackButton } from '../components/BackButton';
+import { useNavigate } from 'solid-app-router';
 
 
 
 export const CreatePostPage: Component = (props) => {
+
+	const navigate = useNavigate()
 
 	const [ initialData, setInitialData ]: [ Accessor<FetchedPosts | undefined>, Setter<FetchedPosts | undefined> ] = createSignal();
 
@@ -105,6 +108,10 @@ export const CreatePostPage: Component = (props) => {
 		}
 	}
 
+	window.onload = () => {
+		window.scrollTo(0, 0)
+	}
+
 	return (
 		<>
 			<CreatePostStyle>
@@ -143,8 +150,11 @@ export const CreatePostPage: Component = (props) => {
 					{/*@ts-ignore*/}
 					{insertResult().data !== null && <h5 style={{ color: 'lightgreen' }}>{"Success"}</h5>}
 				</Show>
+				{/* @ts-ignore */}
 				<input id="title-input" type='text' placeholder="Tytuł..." value={insertTitle()} onInput={(e) => { setInsertTitle(e.target.value) }}></input>
+				{/* @ts-ignore */}
 				<input id="address-input" type='text' placeholder="Lokalizacja..." value={insertAddress()} onInput={(e) => { setInsertAddress(e.target.value) }}></input>
+				{/* @ts-ignore */}
 				<textarea id="description-input" placeholder="Opis..." value={insertDesc()} onInput={(e) => { setInsertDesc(e.target.value) }}></textarea>
 				<button id="submit-post" onClick={uploadHandler}>Dodaj ogłoszenie</button>
 			</CreatePostStyle>
@@ -156,23 +166,24 @@ const CreatePostStyle = styled("div")(() => {
 	return {
 		margin: "auto",
 		// width: "100%",
-		height: "100%",
+		// height: "100%",
 		maxWidth: "640px",
 		display: "flex",
 		flexDirection: "column",
 
+		overflow: "auto !important",
+
+		alignItems: "center",
+
 		"#back-button": {
-			position: "absolute",
+			width: "calc(100% - 40px)",
+			maxWidth: "640px",
+			position: "fixed",
 			margin: "20px 0"
-			// aspectRatio: "1 / 1",
-			// // width: "20%",
-			// // maxWidth: "80px",
-			// margin: "5%",
-			// // borderRadius: "25%",
-			// border: "none"
 		},
 
 		"#top": {
+			width: "calc(100% - 40px)",
 			margin: "20px 0",
 			height: "50px",
 			display: "flex",
@@ -193,7 +204,8 @@ const CreatePostStyle = styled("div")(() => {
 			// outlineOffset: "-4px",
 			border: "6px dashed",
 			borderRadius: "10px",
-			width: "calc(100% - 12px)",
+			width: "calc(100% - 22px)",
+			minHeight: "150px",
 			height: "150px",
 			maxHeight: "150px",
 			// aspectRatio: "1 / 1 ",
@@ -227,6 +239,7 @@ const CreatePostStyle = styled("div")(() => {
 
 
 		"#title-input": {
+			width: "calc(100% - 60px)",
 			marginTop: "20px",
 			backgroundColor: "#383838",
 			border: "none",
@@ -243,6 +256,7 @@ const CreatePostStyle = styled("div")(() => {
 		},
 
 		"#address-input": {
+			width: "calc(100% - 60px)",
 			marginTop: "20px",
 			backgroundColor: "#383838",
 			border: "none",
@@ -259,6 +273,7 @@ const CreatePostStyle = styled("div")(() => {
 		},
 
 		"#description-input": {
+			width: "calc(100% - 60px)",
 			marginTop: "20px",
 			backgroundColor: "#383838",
 			border: "none",
@@ -277,10 +292,10 @@ const CreatePostStyle = styled("div")(() => {
 		},
 
 		"#submit-post": {
+			width: "calc(100% - 40px)",
+			maxWidth: "640px",
 			position: "fixed",
 			bottom: "0",
-			width: "100%",
-			maxWidth: "640px",
 			// marginLeft: "auto",
 			// marginRight: "auto",
 			// width: "calc(100% - 20px)",
