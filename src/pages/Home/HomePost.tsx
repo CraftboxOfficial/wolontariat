@@ -29,13 +29,6 @@ export const HomePost: Component<{ post: PostI }> = (props) => {
 							<span><FaSolidLocationDot /> {props.post.address !== null ? props.post.address : 'Nieznany'}</span>
 							<span><BsCalendarDateFill /> {props.post.created_at !== null ? props.post.created_at.toString() : 'unknown'}</span>
 						</div>
-
-						<button onClick={(e) => {
-							e.stopPropagation()
-							console.log("click")
-						}}>
-							ASK
-						</button>
 					</div>
 				</div>
 
