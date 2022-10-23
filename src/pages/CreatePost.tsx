@@ -5,31 +5,71 @@ import { supabase } from "../supabaseClient";
 import { getPosts, FetchedPosts } from '../App';
 import { GoogleMap } from '../components/GoogleMap';
 import { BackButton } from '../components/BackButton';
+import { Loader } from '@googlemaps/js-api-loader';
 
-
+const loader = new Loader({
+  apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+  version: "weekly",
+  libraries: [ "places" ]
+});
 
 export const CreatePostPage: Component = (props) => {
-
 	const [ initialData, setInitialData ]: [ Accessor<FetchedPosts | undefined>, Setter<FetchedPosts | undefined> ] = createSignal();
+	let autocomplete: any;
 
-	onMount(async () => {
-		const data = await getPosts()
-		setInitialData(data)
-	});
-
+	
 	const [ selectedImage, setSelectedImage ] = createSignal()
 	const [isUploading, setIsUploading] = createSignal(false)
 	const [ insertDesc, setInsertDesc ] = createSignal('');
 	const [ insertTitle, setInsertTitle ] = createSignal('');
 	const [ insertAddress, setInsertAddress ] = createSignal('');
+	const [ insertGeoCode, setInsertGeoCode ] = createSignal({"lat": 0, "lng": 0});
 	const [insertResult, setInsertResult] = createSignal(null);
 	const MAXIMUM_FILE_SIZE = 1000000; //1 mb
+
+	function isEmptyOrSpaces(str:string){
+    return str === null || str.match(/^ *$/) !== null;
+  }
+
+	onMount(async () => {
+		const data = await getPosts()
+		setInitialData(data)
+		loader
+		.load()
+		.then((google:any) => {
+			autocomplete = new google.maps.places.Autocomplete(document.getElementById("autocomplete") as HTMLInputElement)
+			autocomplete.addListener('place_changed', () => {
+				var place = autocomplete.getPlace();
+				//@ts-ignore
+				setInsertGeoCode({"lat": place.geometry.location.lat(), "lng": place.geometry.location.lng()})
+				setInsertAddress(place.formatted_address);
+			})
+		});
+	});
 
 	createEffect(() => {
 		console.log(selectedImage())
 	})
 
 	const insertPost = async (text: string, desc: string, loc: {lat: number, lng: number}, images: any[], address: string) => {
+		if(isEmptyOrSpaces(text)){
+			//@ts-ignore
+			setInsertResult({"data": null, "error": 'Tytuł nie może być pusty!'});
+      return null;
+		}
+
+		if(isEmptyOrSpaces(desc)){
+			//@ts-ignore
+			setInsertResult({"data": null, "error": 'Opis nie może być pusty!'});
+      return null;
+		}
+
+		if(isEmptyOrSpaces(address)){
+			//@ts-ignore
+			setInsertResult({"data": null, "error": 'Adres nie może być pusty!'});
+      return null;
+		}
+
     const data = await supabase.from('posts').insert({ title: text, geolocation: loc, desc: desc, images: images, address: address });
     if(data.error){
       //@ts-ignore
@@ -55,8 +95,8 @@ export const CreatePostPage: Component = (props) => {
    * @param {any} file - the file to be uploaded
   */
 		const uploadFile = async (file:any) => {
-			if(file === null)
-				return;  
+			if(file === undefined || file === null)
+				return; 
 	
 			// Max: 1mb
 			if(file.size > MAXIMUM_FILE_SIZE){
@@ -90,22 +130,14 @@ export const CreatePostPage: Component = (props) => {
 
 		const uploadHandler = async () => {
 			setIsUploading(true);
-			if(navigator.geolocation){
-				await navigator.geolocation.getCurrentPosition(async (position) => {
-					await uploadFile(selectedImage()).then(async (url) => {
-						await insertPost(insertTitle(), insertDesc(), {"lat": position.coords.latitude, "lng": position.coords.longitude}, url !== undefined ? [url] : [], insertAddress()).then((res) => {
-							if (res.error)
-								console.error(res.error);
-				
-							setIsUploading(false);
-						})
-					})
-				}, (error) => {
-					console.error(error);
-				});
-			}else{
-				console.error('Browser does not support geolocation');
-			}
+			await uploadFile(selectedImage()).then(async (url) => {
+				await insertPost(insertTitle(), insertDesc(), insertGeoCode(), url !== undefined ? [url] : [], insertAddress()).then((res) => {
+					if (res.error)
+						console.error(res.error);
+		
+					setIsUploading(false);
+				})
+			})
 		}
 
 	return (
@@ -145,7 +177,8 @@ export const CreatePostPage: Component = (props) => {
           {insertResult().data !== null && <h5 style={{color: 'lightgreen'}}>{"Success"}</h5>}
         </Show>
 				<input id="title-input" type='text' value={insertTitle()} onInput={(e) => {setInsertTitle(e.target.value)}}></input>
-				<input id="address-input" type='text' value={insertAddress()} onInput={(e) => {setInsertAddress(e.target.value)}}></input>
+				<input id="autocomplete"></input>
+				{/* <input id="address-input" type='text' value={insertAddress()} onInput={(e) => {setInsertAddress(e.target.value)}}></input> */}
 				<textarea id="description-input" value={insertDesc()} onInput={(e) => {setInsertDesc(e.target.value)}}></textarea>
 				<button id="submit-post" onClick={uploadHandler}>Dodaj ogłoszenie</button>
 			</CreatePostStyle>
