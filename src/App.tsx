@@ -31,7 +31,7 @@ export interface FetchedPosts {
 }
 
 export const searchPostByTitle = async (text: string) => {
-  const data = await supabase.from('posts').select().like('title', `%${text}%`)
+  const data = await supabase.from('posts').select().ilike('title', `%${text}%`)
   return data.data as PostI[];
 }
 

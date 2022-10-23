@@ -49,3 +49,14 @@ textarea{
   display: block;
   margin: 5px;
 }
+
+.map-marker {
+  background-color: #AA3B3B;
+  padding: 10px;
+  border-radius: 10px;
+  border: solid #FFC9C9 2px;
+  position: relative;
+  bottom: 40px;
+  /* font-size: 160%; */
+  /* color: #FFFFFF; */
+}

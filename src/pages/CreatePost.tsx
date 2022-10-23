@@ -6,14 +6,13 @@ import { supabase } from "../supabaseClient";
 import { getPosts, FetchedPosts } from '../App';
 import { GoogleMap } from '../components/GoogleMap';
 import { BackButton } from '../components/BackButton';
-import { useNavigate } from 'solid-app-router';
 import { Loader } from '@googlemaps/js-api-loader';
 
 
 const loader = new Loader({
-  apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-  version: "weekly",
-  libraries: [ "places" ]
+	apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+	version: "weekly",
+	libraries: [ "places" ]
 });
 
 export const CreatePostPage: Component = (props) => {
@@ -23,80 +22,80 @@ export const CreatePostPage: Component = (props) => {
 	const [ initialData, setInitialData ]: [ Accessor<FetchedPosts | undefined>, Setter<FetchedPosts | undefined> ] = createSignal();
 	let autocomplete: any;
 
-	
+
 	const [ selectedImage, setSelectedImage ] = createSignal()
 	const [ isUploading, setIsUploading ] = createSignal(false)
 	const [ insertDesc, setInsertDesc ] = createSignal('');
 	const [ insertTitle, setInsertTitle ] = createSignal('');
 	const [ insertAddress, setInsertAddress ] = createSignal('');
 
-	const [ insertGeoCode, setInsertGeoCode ] = createSignal({"lat": 0, "lng": 0});
-	const [insertResult, setInsertResult] = createSignal(null);
+	const [ insertGeoCode, setInsertGeoCode ] = createSignal({ "lat": 0, "lng": 0 });
+	const [ insertResult, setInsertResult ] = createSignal(null);
 
 	const MAXIMUM_FILE_SIZE = 1000000; //1 mb
 
-	function isEmptyOrSpaces(str:string){
-    return str === null || str.match(/^ *$/) !== null;
-  }
+	function isEmptyOrSpaces(str: string) {
+		return str === null || str.match(/^ *$/) !== null;
+	}
 
 	onMount(async () => {
 		const data = await getPosts()
 		setInitialData(data)
 		loader
-		.load()
-		.then((google:any) => {
-			autocomplete = new google.maps.places.Autocomplete(document.getElementById("autocomplete") as HTMLInputElement)
-			autocomplete.addListener('place_changed', () => {
-				var place = autocomplete.getPlace();
-				//@ts-ignore
-				setInsertGeoCode({"lat": place.geometry.location.lat(), "lng": place.geometry.location.lng()})
-				setInsertAddress(place.formatted_address);
-			})
-		});
+			.load()
+			.then((google: any) => {
+				autocomplete = new google.maps.places.Autocomplete(document.getElementById("address-input") as HTMLInputElement)
+				autocomplete.addListener('place_changed', () => {
+					var place = autocomplete.getPlace();
+					//@ts-ignore
+					setInsertGeoCode({ "lat": place.geometry.location.lat(), "lng": place.geometry.location.lng() })
+					setInsertAddress(place.formatted_address);
+				})
+			});
 	});
 
 	createEffect(() => {
 		console.log(selectedImage())
 	})
 
-	const insertPost = async (text: string, desc: string, loc: {lat: number, lng: number}, images: any[], address: string) => {
-		if(isEmptyOrSpaces(text)){
+	const insertPost = async (text: string, desc: string, loc: { lat: number, lng: number }, images: any[], address: string) => {
+		if (isEmptyOrSpaces(text)) {
 			//@ts-ignore
-			setInsertResult({"data": null, "error": 'Tytuł nie może być pusty!'});
-      return null;
+			setInsertResult({ "data": null, "error": 'Tytuł nie może być pusty!' });
+			return null;
 		}
 
-		if(isEmptyOrSpaces(desc)){
+		if (isEmptyOrSpaces(desc)) {
 			//@ts-ignore
-			setInsertResult({"data": null, "error": 'Opis nie może być pusty!'});
-      return null;
+			setInsertResult({ "data": null, "error": 'Opis nie może być pusty!' });
+			return null;
 		}
 
-		if(isEmptyOrSpaces(address)){
+		if (isEmptyOrSpaces(address)) {
 			//@ts-ignore
-			setInsertResult({"data": null, "error": 'Adres nie może być pusty!'});
-      return null;
+			setInsertResult({ "data": null, "error": 'Adres nie może być pusty!' });
+			return null;
 		}
 
-    const data = await supabase.from('posts').insert({ title: text, geolocation: loc, desc: desc, images: images, address: address });
-    if(data.error){
-      //@ts-ignore
-      setInsertResult({"data": null, "error": 'Database access denied'});
-      return null;
-    }
-    //@ts-ignore
-    setInsertResult({"data": data, "error": null});
-    return data;
-  }
+		const data = await supabase.from('posts').insert({ title: text, geolocation: loc, desc: desc, images: images, address: address });
+		if (data.error) {
+			//@ts-ignore
+			setInsertResult({ "data": null, "error": 'Database access denied' });
+			return null;
+		}
+		//@ts-ignore
+		setInsertResult({ "data": data, "error": null });
+		return data;
+	}
 
-	function formatFileSize(bytes:any, decimalPoint:any) {
-    if(bytes == 0) return '0 Bajtów';
-    var k = 1000,
-        dm = decimalPoint || 2,
-        sizes = ['Bajtów', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-        i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-  }
+	function formatFileSize(bytes: any, decimalPoint: any) {
+		if (bytes == 0) return '0 Bajtów';
+		var k = 1000,
+			dm = decimalPoint || 2,
+			sizes = [ 'Bajtów', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ],
+			i = Math.floor(Math.log(bytes) / Math.log(k));
+		return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[ i ];
+	}
 
 
 	/**
@@ -142,19 +141,19 @@ export const CreatePostPage: Component = (props) => {
 
 
 
-		const uploadHandler = async () => {
-			setIsUploading(true);
-			await uploadFile(selectedImage()).then(async (url) => {
-				await insertPost(insertTitle(), insertDesc(), insertGeoCode(), url !== undefined ? [url] : [], insertAddress()).then((res) => {
-					if (res.error)
-						console.error(res.error);
-		
-					setIsUploading(false);
-				})
-			})
+	const uploadHandler = async () => {
+		setIsUploading(true);
+		await uploadFile(selectedImage()).then(async (url) => {
+			await insertPost(insertTitle(), insertDesc(), insertGeoCode(), url !== undefined ? [ url ] : [], insertAddress()).then((res) => {
+				if (res.error)
+					console.error(res.error);
 
-		}
+				setIsUploading(false);
+			})
+		})
+
 	}
+
 
 	window.onload = () => {
 		window.scrollTo(0, 0)
@@ -192,22 +191,30 @@ export const CreatePostPage: Component = (props) => {
 					</Show>
 				</div>
 
-				<Show when={insertResult() !== null}>
-
-					{/*@ts-ignore*/}
-					{insertResult().error !== null && <h5 style={{ color: 'tomato' }}>{insertResult().error}</h5>}
-					{/*@ts-ignore*/}
-					{insertResult().data !== null && <h5 style={{ color: 'lightgreen' }}>{"Success"}</h5>}
-				</Show>
 				{/* @ts-ignore */}
 				<input id="title-input" type='text' placeholder="Tytuł..." value={insertTitle()} onInput={(e) => { setInsertTitle(e.target.value) }}></input>
 				{/* @ts-ignore */}
-        <input id="autocomplete"></input>
+				<input id="address-input"></input>
 				{/* <input id="address-input" type='text' placeholder="Lokalizacja..." value={insertAddress()} onInput={(e) => { setInsertAddress(e.target.value) }}></input>*/}
 				{/* @ts-ignore */}
 				<textarea id="description-input" placeholder="Opis..." value={insertDesc()} onInput={(e) => { setInsertDesc(e.target.value) }}></textarea>
 
-				<button id="submit-post" onClick={uploadHandler}>Dodaj ogłoszenie</button>
+				<Show when={insertResult() !== null} fallback={
+					<button id="submit-post" onClick={uploadHandler}>Dodaj ogłoszenie</button>
+				}>
+
+					{/*@ts-ignore*/}
+					{insertResult().error !== null && <h5 style={{ color: 'tomato' }}>{insertResult().error}</h5>}
+					{/*@ts-ignore*/}
+					{insertResult().data !== null && <h5 style={{ color: 'lightgreen' }}>Dodano ogłoszenie!</h5>}
+
+					{/*@ts-ignore*/}
+					<Show when={insertResult().data !== null}>
+						<button id="submit-post" onClick={uploadHandler} disabled>Dodaj ogłoszenie</button>
+					</Show>
+				</Show>
+
+				{/* <button id="submit-post" onClick={uploadHandler}>Dodaj ogłoszenie</button> */}
 			</CreatePostStyle>
 		</>
 	)
