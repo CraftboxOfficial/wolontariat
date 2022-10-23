@@ -1,59 +1,109 @@
 import { Accessor, Component, createEffect, createSignal, JSXElement, onMount, Setter, Show } from 'solid-js';
+
 import { styled } from 'solid-styled-components';
-import { FetchedPosts, getPosts } from '../App';
+import { useNavigate } from 'solid-app-router';
+import { supabase } from "../supabaseClient";
+import { getPosts, FetchedPosts } from '../App';
+import { GoogleMap } from '../components/GoogleMap';
 import { BackButton } from '../components/BackButton';
 import { useNavigate } from 'solid-app-router';
+import { Loader } from '@googlemaps/js-api-loader';
 
 
+const loader = new Loader({
+  apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+  version: "weekly",
+  libraries: [ "places" ]
+});
 
 export const CreatePostPage: Component = (props) => {
 
 	const navigate = useNavigate()
 
 	const [ initialData, setInitialData ]: [ Accessor<FetchedPosts | undefined>, Setter<FetchedPosts | undefined> ] = createSignal();
+	let autocomplete: any;
 
-	onMount(async () => {
-		const data = await getPosts()
-		setInitialData(data)
-	});
-
+	
 	const [ selectedImage, setSelectedImage ] = createSignal()
 	const [ isUploading, setIsUploading ] = createSignal(false)
 	const [ insertDesc, setInsertDesc ] = createSignal('');
 	const [ insertTitle, setInsertTitle ] = createSignal('');
 	const [ insertAddress, setInsertAddress ] = createSignal('');
-	const [ insertResult, setInsertResult ] = createSignal(null);
+
+	const [ insertGeoCode, setInsertGeoCode ] = createSignal({"lat": 0, "lng": 0});
+	const [insertResult, setInsertResult] = createSignal(null);
+
 	const MAXIMUM_FILE_SIZE = 1000000; //1 mb
+
+	function isEmptyOrSpaces(str:string){
+    return str === null || str.match(/^ *$/) !== null;
+  }
+
+	onMount(async () => {
+		const data = await getPosts()
+		setInitialData(data)
+		loader
+		.load()
+		.then((google:any) => {
+			autocomplete = new google.maps.places.Autocomplete(document.getElementById("autocomplete") as HTMLInputElement)
+			autocomplete.addListener('place_changed', () => {
+				var place = autocomplete.getPlace();
+				//@ts-ignore
+				setInsertGeoCode({"lat": place.geometry.location.lat(), "lng": place.geometry.location.lng()})
+				setInsertAddress(place.formatted_address);
+			})
+		});
+	});
 
 	createEffect(() => {
 		console.log(selectedImage())
 	})
 
-	const insertPost = async (text: string, desc: string, loc: { lat: number, lng: number }, images: any[], address: string) => {
-		const data = await supabase.from('posts').insert({ title: text, geolocation: loc, desc: desc, images: images, address: address });
-		if (data.error) {
+	const insertPost = async (text: string, desc: string, loc: {lat: number, lng: number}, images: any[], address: string) => {
+		if(isEmptyOrSpaces(text)){
 			//@ts-ignore
-			setInsertResult({ "data": null, "error": 'Database access denied' });
-			return null;
+			setInsertResult({"data": null, "error": 'Tytuł nie może być pusty!'});
+      return null;
 		}
-		//@ts-ignore
-		setInsertResult({ "data": data, "error": null });
-		return data;
-	}
 
-	function formatFileSize(bytes: any, decimalPoint: any) {
-		if (bytes == 0) return '0 Bajtów';
-		var k = 1000,
-			dm = decimalPoint || 2,
-			sizes = [ 'Bajtów', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ],
-			i = Math.floor(Math.log(bytes) / Math.log(k));
-		return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[ i ];
-	}
+		if(isEmptyOrSpaces(desc)){
+			//@ts-ignore
+			setInsertResult({"data": null, "error": 'Opis nie może być pusty!'});
+      return null;
+		}
+
+		if(isEmptyOrSpaces(address)){
+			//@ts-ignore
+			setInsertResult({"data": null, "error": 'Adres nie może być pusty!'});
+      return null;
+		}
+
+    const data = await supabase.from('posts').insert({ title: text, geolocation: loc, desc: desc, images: images, address: address });
+    if(data.error){
+      //@ts-ignore
+      setInsertResult({"data": null, "error": 'Database access denied'});
+      return null;
+    }
+    //@ts-ignore
+    setInsertResult({"data": data, "error": null});
+    return data;
+  }
+
+	function formatFileSize(bytes:any, decimalPoint:any) {
+    if(bytes == 0) return '0 Bajtów';
+    var k = 1000,
+        dm = decimalPoint || 2,
+        sizes = ['Bajtów', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+        i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+
 
 	/**
    * It takes a file, uploads it to supabase, and returns the public url of the file
    * @param {any} file - the file to be uploaded
   */
+
 	const uploadFile = async (file: any) => {
 		if (file === null)
 			return;
@@ -77,6 +127,7 @@ export const CreatePostPage: Component = (props) => {
 			upsert: true
 		}).then((res: any) => {
 			if (res.error) {
+
 				setIsUploading(false);
 				//@ts-ignore
 				setInsertResult({ "data": null, "error": 'File upload failed' });
@@ -84,27 +135,24 @@ export const CreatePostPage: Component = (props) => {
 			}
 		})
 
+
 		const { data } = await supabase.storage.from('images').getPublicUrl('public/' + randomName + "." + fileExtension);
 		return data.publicUrl;
 	}
 
-	const uploadHandler = async () => {
-		setIsUploading(true);
-		if (navigator.geolocation) {
-			await navigator.geolocation.getCurrentPosition(async (position) => {
-				await uploadFile(selectedImage()).then(async (url) => {
-					await insertPost(insertTitle(), insertDesc(), { "lat": position.coords.latitude, "lng": position.coords.longitude }, url !== undefined ? [ url ] : [], insertAddress()).then((res) => {
-						if (res.error)
-							console.error(res.error);
 
-						setIsUploading(false);
-					})
+
+		const uploadHandler = async () => {
+			setIsUploading(true);
+			await uploadFile(selectedImage()).then(async (url) => {
+				await insertPost(insertTitle(), insertDesc(), insertGeoCode(), url !== undefined ? [url] : [], insertAddress()).then((res) => {
+					if (res.error)
+						console.error(res.error);
+		
+					setIsUploading(false);
 				})
-			}, (error) => {
-				console.error(error);
-			});
-		} else {
-			console.error('Browser does not support geolocation');
+			})
+
 		}
 	}
 
@@ -145,6 +193,7 @@ export const CreatePostPage: Component = (props) => {
 				</div>
 
 				<Show when={insertResult() !== null}>
+
 					{/*@ts-ignore*/}
 					{insertResult().error !== null && <h5 style={{ color: 'tomato' }}>{insertResult().error}</h5>}
 					{/*@ts-ignore*/}
@@ -153,9 +202,11 @@ export const CreatePostPage: Component = (props) => {
 				{/* @ts-ignore */}
 				<input id="title-input" type='text' placeholder="Tytuł..." value={insertTitle()} onInput={(e) => { setInsertTitle(e.target.value) }}></input>
 				{/* @ts-ignore */}
-				<input id="address-input" type='text' placeholder="Lokalizacja..." value={insertAddress()} onInput={(e) => { setInsertAddress(e.target.value) }}></input>
+        <input id="autocomplete"></input>
+				{/* <input id="address-input" type='text' placeholder="Lokalizacja..." value={insertAddress()} onInput={(e) => { setInsertAddress(e.target.value) }}></input>*/}
 				{/* @ts-ignore */}
 				<textarea id="description-input" placeholder="Opis..." value={insertDesc()} onInput={(e) => { setInsertDesc(e.target.value) }}></textarea>
+
 				<button id="submit-post" onClick={uploadHandler}>Dodaj ogłoszenie</button>
 			</CreatePostStyle>
 		</>

@@ -30,6 +30,7 @@ const mapOptions: google.maps.MapOptions = {
 
 let map: any;
 let markerClusters: any;
+let autocomplete: any;
 
 export const GoogleMap = () => {
   //@ts-ignore
@@ -38,6 +39,7 @@ export const GoogleMap = () => {
 
   const markerHandleClick = (id:Number) => {
     const Item = locations().data.filter((i:any) => {return i.id === id})[0];
+    //map.setCenter({'lat': 10, "lng": 10})
     console.log(Item)
   }
 
@@ -64,6 +66,7 @@ export const GoogleMap = () => {
       .then((google) => {
         if (refreshMap) {
           map = new google.maps.Map(document.getElementById("map") as HTMLElement, mapOptions);
+          autocomplete = new google.maps.places.Autocomplete(document.getElementById("autocomplete") as HTMLInputElement)
           document.getElementById('map')?.classList.add('showed')
         }
         console.log(google)
@@ -119,6 +122,7 @@ export const GoogleMap = () => {
   });
   return (
     <>
+      <input id="autocomplete"></input>
       {/* <button onClick={() => {console.log(locations())}}>tt</button> */}
       <MapStyle>
         <Show when={mapLoading()}><h1>loading map...</h1></Show>
@@ -132,6 +136,10 @@ export const GoogleMap = () => {
 
 const MapStyle = styled("div")(() => {
   return {
+    "#autocomplete": {
+      position: 'fixed',
+      zIndex: 100
+    },
     "#map": {
       width: "100%",
       // height: "100%"

@@ -27,6 +27,7 @@ export const HomePost: Component<{ post: PostI, class?: string }> = (props) => {
 					</div>
 					<div class="bottom">
 						<div class="left">
+
 							{/* <span><FaSolidLocationDot /> {props.post.address !== null ? props.post.address : 'Nieznany'}</span>
 							<span><BsCalendarDateFill /> {props.post.created_at !== null ? props.post.created_at.toString() : 'unknown'}</span> */}
 							<IconText>
@@ -37,6 +38,7 @@ export const HomePost: Component<{ post: PostI, class?: string }> = (props) => {
 								<BsCalendarDateFill />
 								<span style={{ "margin-left": "5px" }}>{props.post.created_at ? props.post.created_at.toString() : 'unknown'}</span>
 							</IconText>
+
 						</div>
 					</div>
 				</div>

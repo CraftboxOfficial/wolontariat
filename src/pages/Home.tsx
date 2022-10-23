@@ -3,17 +3,12 @@ import { Accessor, Component, createEffect, createSignal, For, onMount, Setter, 
 import { styled } from 'solid-styled-components';
 import { FetchedPosts, getPosts, PostI, searchPostByTitle } from '../App';
 import { HomeMap } from './Home/HomeMap';
-
-import { LocationsProvider, useLocations } from '../LocationsProvider';
 import { FaSolidMapLocationDot } from 'solid-icons/fa'
 import { RiSystemAddCircleFill } from 'solid-icons/ri'
 import { TiThListOutline } from 'solid-icons/ti'
 
 import { HomePost } from './Home/HomePost';
 import { SkeletonPost } from './Home/SkeletonPost';
-
-
-
 
 export const HomePage: Component = (props) => {
 
