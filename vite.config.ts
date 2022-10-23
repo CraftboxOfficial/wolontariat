@@ -16,15 +16,15 @@ export default defineConfig({
       name: 'Dobrowraca',
       short_name: 'Dobrowraca',
       description: '',
-      theme_color: '#ffffff',
+      theme_color: '#2B2B2B',
       icons: [
         {
-          src: '/assets/pwaIcons/192x192-icon.png',
+          src: '/src/assets/pwaIcons/192x192-icon.png',
           sizes: '192x192',
           type: 'image/png'
         },
         {
-          src: '/assets/pwaIcons/512x512-icon.png',
+          src: '/src/assets/pwaIcons/512x512-icon.png',
           sizes: '512x512',
           type: 'image/png'
         }
