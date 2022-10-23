@@ -27,7 +27,7 @@ export const HomePost: Component<{ post: PostI }> = (props) => {
 					<div class="bottom">
 						<div class="left">
 							<span><FaSolidLocationDot /> {props.post.address !== null ? props.post.address : 'Nieznany'}</span>
-							<span><BsCalendarDateFill /> {props.post.created_at !== null ? props.post.created_at.toString() : 'unknown'}</span>
+							<span><BsCalendarDateFill /> {props.post.created_at !== null ? props.post.created_at.toString() : 'Nieznana'}</span>
 						</div>
 
 						<button onClick={(e) => {
