@@ -11,7 +11,7 @@ Aplikację napisano w języku TypeScript przy użyciu frameworka SolidJS.
 
 ## Opisz działanie Waszej aplikacji/narzędzia
 
-Aplikacja jest dostępna pod adresem [dobrowraca.xyz](https://dobrowraca.xyz). Użytkownik może przeglądać ogłoszenia dodawane przez innych użytkowników, po zalogowaniu może dodawać własne. Dostępne są ogłoszenia w kategoriach: _oddam_, _przyjmę_ oraz _pomogę_ lub _potrzebuję pomocy_.
+Aplikacja jest dostępna pod adresem [dobrowraca.xyz](https://dobrowraca.xyz). Użytkownik może przeglądać ogłoszenia dodawane przez innych użytkowników, po zalogowaniu może dodawać własne.W przyszłości jedną z opcji byłyby ogłoszenia w kategoriach: _oddam_, _przyjmę_ oraz _pomogę_ lub _potrzebuję pomocy_. 
 
 ---
 
