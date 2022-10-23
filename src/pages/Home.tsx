@@ -9,6 +9,7 @@ import { TiThListOutline } from 'solid-icons/ti'
 
 import { HomePost } from './Home/HomePost';
 import { SkeletonPost } from './Home/SkeletonPost';
+import { useLocations } from '../LocationsProvider';
 
 export const HomePage: Component = (props) => {
 
@@ -47,7 +48,7 @@ export const HomePage: Component = (props) => {
 
 	createEffect(() => {
 		if (searchInput()) {
-
+			console.log(searchInput())
 			searchPostByTitle(searchInput()).then((r) => {
 				console.log(r)
 				updateLocations({ "data": r });
