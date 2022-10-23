@@ -14,13 +14,19 @@ export const HomePost: Component<{ post: PostI, class?: string }> = (props) => {
 	const navigate = useNavigate()
 
 
+	const maxLetters = (parseInt((window.innerWidth / 100).toFixed(0)) - 1) * 10
+
+	const cutTitle = props.post.title.length > (maxLetters <= 32 ? maxLetters : 32) ? props.post.title.substring(0, (maxLetters <= 32 ? maxLetters : 32)).concat("...") : props.post.title
+
 	return (
 		<>
 			<HomePostStyle class={props.class} onClick={() => navigate(`/post/${props.post.id}`)}>
-				<img class="post-image" src={props.post.images[ 0 ]}></img>
+				<div class='image-div'>
+					<img class="post-image" src={props.post.images[ 0 ]}></img>
+				</div>
 				<div class="content">
 					<div class="top">
-						<span class="title">{props.post.title || "title"}</span>
+						<span class="title">{cutTitle || "title"}</span>
 						<div class="tags">
 							{/* <span>TAGS</span> */}
 						</div>
@@ -54,22 +60,30 @@ const HomePostStyle = styled("div")(() => {
 		width: "100%",
 		minHeight: "100px",
 		maxWidth: "640px",
-		maxHeight: "100px",
+		// maxHeight: "100px",
 		height: "100%",
 
 		display: "flex",
 		transition: "scale 50ms",
 
 		backgroundColor: "#383838",
-		".post-image": {
-			objectFit: "cover",
-			minWidth: "150px",
-			// maxWidth: "40%",
-			maxHeight: "100px",
-			minHeight: "100px",
+		".image-div": {
 			height: "100%",
-			borderRadius: "10px",
-			boxShadow: "4px 0 4px 0 rgba(0%, 0%, 0%, 25%)"
+			display: "flex",
+			flexDirection: "column",
+			alignContent: "center",
+			alignItems: "center",
+
+			".post-image": {
+				objectFit: "cover",
+				minWidth: "150px",
+				maxWidth: "40%",
+				maxHeight: "100px",
+				minHeight: "100px",
+				// height: "100px",
+				borderRadius: "10px",
+				boxShadow: "4px 0 4px 0 rgba(0%, 0%, 0%, 25%)"
+			},
 		},
 
 		borderRadius: "10px",
@@ -90,7 +104,8 @@ const HomePostStyle = styled("div")(() => {
 				color: "#FFFFFF",
 
 				".title": {
-					fontSize: "140%"
+					fontSize: "90%",
+					fontWeight: "bolder"
 				},
 
 				".tags": {
