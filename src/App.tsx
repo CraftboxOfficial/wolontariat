@@ -17,15 +17,6 @@ import { MapPage } from './pages/Map';
 import { HomePage } from './pages/Home';
 import { CreatePostPage } from './pages/CreatePost';
 
-import UserComponent  from './components/UserComponent';
-//@ts-ignore
-//import {convertToReactComponent,ReactToSolidBridge,ReactToSolidBridgeProvider} from 'react-solid-bridge'
-//@ts-ignore
-//import Autocomplete from "react-google-autocomplete";
-
-//const SolidAutoComplete = convertToReactComponent(Autocomplete)
-
-
 export interface PostI {
   id: number,
   created_at: Date,
@@ -151,30 +142,6 @@ export const App: Component = () => {
         sizes = ['Bajtów', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
         i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-  }
-
-  const getGeoCode = async () => {
-
-  }
-
-  const uploadHandler = async () => {
-    setIsUploading(true);
-    if(navigator.geolocation){
-      await navigator.geolocation.getCurrentPosition(async (position) => {
-        // await uploadFile(insertFile()).then(async (url) => {
-        //   await insertPost(postText(), insertDesc(), {"lat": position.coords.latitude, "lng": position.coords.longitude}, url !== undefined ? [url] : []).then((res) => {
-        //     if (res.error)
-        //       console.error(res.error);
-      
-        //     setIsUploading(false);
-        //   })
-        // })
-      }, (error) => {
-        console.error(error);
-      });
-    }else{
-      console.error('Browser does not support geolocation');
-    }
   }
 
   const searchHandler = async () => {
