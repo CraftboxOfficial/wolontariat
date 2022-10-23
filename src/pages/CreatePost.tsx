@@ -32,7 +32,7 @@ export const CreatePostPage: Component = (props) => {
 	const [ insertGeoCode, setInsertGeoCode ] = createSignal({ "lat": 0, "lng": 0 });
 	const [ insertResult, setInsertResult ] = createSignal(null);
 
-	const MAXIMUM_FILE_SIZE = 1000000; //1 mb
+	const MAXIMUM_FILE_SIZE = 5000000; //1 mb
 
 	function isEmptyOrSpaces(str: string) {
 		return str === null || str.match(/^ *$/) !== null;
@@ -159,6 +159,7 @@ export const CreatePostPage: Component = (props) => {
 		window.scrollTo(0, 0)
 	}
 
+
 	return (
 		<>
 			<CreatePostStyle>
@@ -208,10 +209,15 @@ export const CreatePostPage: Component = (props) => {
 					{/*@ts-ignore*/}
 					{insertResult().data !== null && <h5 style={{ color: 'lightgreen' }}>Dodano ogłoszenie!</h5>}
 
-					{/*@ts-ignore*/}
-					<Show when={insertResult().data !== null}>
-						<button id="submit-post" onClick={uploadHandler} disabled>Dodaj ogłoszenie</button>
-					</Show>
+				</Show>
+				
+				{/*@ts-ignore*/}
+				<Show when={!isUploading() && insertResult()?.data !== null} fallback={
+
+					<button id="submit-post" onClick={uploadHandler} disabled>Dodaj ogłoszenie</button>
+				}>
+					<button id="submit-post" onClick={uploadHandler}>Dodaj ogłoszenie</button>
+
 				</Show>
 
 				{/* <button id="submit-post" onClick={uploadHandler}>Dodaj ogłoszenie</button> */}
