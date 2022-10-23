@@ -21,6 +21,7 @@ export const CreatePostPage: Component = (props) => {
 	const [isUploading, setIsUploading] = createSignal(false)
 	const [ insertDesc, setInsertDesc ] = createSignal('');
 	const [ insertTitle, setInsertTitle ] = createSignal('');
+	const [ insertAddress, setInsertAddress ] = createSignal('');
 	const [insertResult, setInsertResult] = createSignal(null);
 	const MAXIMUM_FILE_SIZE = 1000000; //1 mb
 
@@ -28,8 +29,8 @@ export const CreatePostPage: Component = (props) => {
 		console.log(selectedImage())
 	})
 
-	const insertPost = async (text: string, desc: string, loc: {lat: number, lng: number}, images: any[]) => {
-    const data = await supabase.from('posts').insert({ title: text, geolocation: loc, desc: desc, images: images });
+	const insertPost = async (text: string, desc: string, loc: {lat: number, lng: number}, images: any[], address: string) => {
+    const data = await supabase.from('posts').insert({ title: text, geolocation: loc, desc: desc, images: images, address: address });
     if(data.error){
       //@ts-ignore
       setInsertResult({"data": null, "error": 'Database access denied'});
@@ -92,7 +93,7 @@ export const CreatePostPage: Component = (props) => {
 			if(navigator.geolocation){
 				await navigator.geolocation.getCurrentPosition(async (position) => {
 					await uploadFile(selectedImage()).then(async (url) => {
-						await insertPost(insertTitle(), insertDesc(), {"lat": position.coords.latitude, "lng": position.coords.longitude}, url !== undefined ? [url] : []).then((res) => {
+						await insertPost(insertTitle(), insertDesc(), {"lat": position.coords.latitude, "lng": position.coords.longitude}, url !== undefined ? [url] : [], insertAddress()).then((res) => {
 							if (res.error)
 								console.error(res.error);
 				
@@ -144,6 +145,7 @@ export const CreatePostPage: Component = (props) => {
           {insertResult().data !== null && <h5 style={{color: 'lightgreen'}}>{"Success"}</h5>}
         </Show>
 				<input id="title-input" type='text' value={insertTitle()} onInput={(e) => {setInsertTitle(e.target.value)}}></input>
+				<input id="address-input" type='text' value={insertAddress()} onInput={(e) => {setInsertAddress(e.target.value)}}></input>
 				<textarea id="description-input" value={insertDesc()} onInput={(e) => {setInsertDesc(e.target.value)}}></textarea>
 				<button id="submit-post" onClick={uploadHandler}>Dodaj ogłoszenie</button>
 			</CreatePostStyle>

@@ -35,7 +35,8 @@ export interface PostI {
     lng: number
   },
   desc: string,
-  images: string[]
+  images: string[],
+  address: string
 }
 
 export interface FetchedPosts {
@@ -110,11 +111,10 @@ export const App: Component = () => {
   }
 
   onMount(async () => {
-    // Demo user login (żeby mógł tworzyc posty).
-
     const data = await supabase.from('posts').select();
+
+    // Demo user login (żeby mógł tworzyc posty).
     await supabase.auth.signInWithPassword({
-      //@ts-ignore
       email: 'komiyi3831@cadolls.com',
       password: 'demouser1',
     }).then((res) => {
@@ -122,7 +122,7 @@ export const App: Component = () => {
         console.error(res.error)
       }
     })
-    
+
     //@ts-ignore
     setInitialData(data);
     console.trace(data);

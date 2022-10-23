@@ -170,7 +170,7 @@ const HomeStyle = styled("div")(() => {
 		},
 
 		"#bottom-buttons": {
-			zIndex: "10",
+			zIndex: "10", 
 			position: "fixed",
 			bottom: "0",
 			width: "100%",
