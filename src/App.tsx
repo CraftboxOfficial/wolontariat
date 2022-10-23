@@ -15,7 +15,7 @@ import { PageNavigator } from './components/PageNavigator';
 import { MapPage } from './pages/Map';
 
 import { HomePage } from './pages/Home';
-//import { CreatePostPage } from './pages/CreatePost';
+import { CreatePostPage } from './pages/CreatePost';
 
 import UserComponent  from './components/UserComponent';
 //@ts-ignore
@@ -110,7 +110,19 @@ export const App: Component = () => {
   }
 
   onMount(async () => {
+    // Demo user login (żeby mógł tworzyc posty).
+
     const data = await supabase.from('posts').select();
+    await supabase.auth.signInWithPassword({
+      //@ts-ignore
+      email: 'komiyi3831@cadolls.com',
+      password: 'demouser1',
+    }).then((res) => {
+      if(res.error){
+        console.error(res.error)
+      }
+    })
+    
     //@ts-ignore
     setInitialData(data);
     console.trace(data);
@@ -145,56 +157,18 @@ export const App: Component = () => {
 
   }
 
-  /**
-   * It takes a file, uploads it to supabase, and returns the public url of the file
-   * @param {any} file - the file to be uploaded
-  */
-  const uploadFile = async (file:any) => {
-    if(file === null)
-      return;  
-
-    // Max: 1mb
-    if(file.size > MAXIMUM_FILE_SIZE){
-      setIsUploading(false);
-      //@ts-ignore
-      setInsertResult({"data": null, "error": 'File too large'});
-      throw new Error("File size too large")
-    }
-
-    const fileName = file.name;
-    const fileSize = formatFileSize(file.size, 2);
-
-    const fileExtension = (/[.]/.exec(fileName)) ? /[^.]+$/.exec(fileName) : undefined;
-    const randomName = crypto.randomUUID();
-
-    await supabase.storage.from('images').upload('public/' + randomName + "." + fileExtension, file, {
-      cacheControl: '3600',
-      upsert: true
-    }).then((res) => {
-      if(res.error){
-        setIsUploading(false);
-        //@ts-ignore
-        setInsertResult({"data": null, "error": 'File upload failed'});
-        throw new Error("File upload failed")
-      }
-    })
-
-    const {data} = await supabase.storage.from('images').getPublicUrl('public/' + randomName + "." + fileExtension);
-    return data.publicUrl;
-  }
-
   const uploadHandler = async () => {
     setIsUploading(true);
     if(navigator.geolocation){
       await navigator.geolocation.getCurrentPosition(async (position) => {
-        await uploadFile(insertFile()).then(async (url) => {
-          await insertPost(postText(), insertDesc(), {"lat": position.coords.latitude, "lng": position.coords.longitude}, url !== undefined ? [url] : []).then((res) => {
-            if (res.error)
-              console.error(res.error);
+        // await uploadFile(insertFile()).then(async (url) => {
+        //   await insertPost(postText(), insertDesc(), {"lat": position.coords.latitude, "lng": position.coords.longitude}, url !== undefined ? [url] : []).then((res) => {
+        //     if (res.error)
+        //       console.error(res.error);
       
-            setIsUploading(false);
-          })
-        })
+        //     setIsUploading(false);
+        //   })
+        // })
       }, (error) => {
         console.error(error);
       });
@@ -236,7 +210,7 @@ export const App: Component = () => {
         <Routes>
           <Route path={"/"} component={HomePage} />
           <Route path={"/post/:postId"} component={PostPage} />
-          {/* <Route path={"/create-post"} component={CreatePostPage} /> */}
+          <Route path={"/create-post"} component={CreatePostPage} />
         </Routes>
       </AppStyle>
     </>
