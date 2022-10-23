@@ -21,7 +21,9 @@ export const HomePage: Component = (props) => {
 
 	onMount(async () => {
 		const data = await getPosts()
-		setPosts(data.data)
+		//@ts-ignore
+		setPosts(data.data?.sort((a:any,b:any) => {return b.id - a.id}))
+		updateLocations({"data": data.data?.sort((a:any,b:any) => {return b.id - a.id})})
 	});
 
 
@@ -50,14 +52,14 @@ export const HomePage: Component = (props) => {
 		if (searchInput()) {
 			searchPostByTitle(searchInput()).then((r) => {
 				console.log(r)
-				updateLocations({ "data": r });
-				setPosts(r)
+				updateLocations({ "data": r.sort((a:any,b:any) => {return b.id - a.id})});
+				setPosts(r.sort((a:any,b:any) => {return b.id - a.id}))
 			})
 
 		} else {
 			searchPostByTitle("").then((r) => {
-				updateLocations({ "data": r });
-				setPosts(r)
+				updateLocations({ "data": r.sort((a:any,b:any) => {return b.id - a.id})});
+				setPosts(r.sort((a:any,b:any) => {return b.id - a.id}))
 			})
 		}
 	})
