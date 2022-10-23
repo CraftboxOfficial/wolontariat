@@ -1,9 +1,12 @@
-import { Component, Show } from "solid-js";
+import { useNavigate } from 'solid-app-router';
+import { Component } from "solid-js";
 import { styled } from 'solid-styled-components';
 import { PostI } from "../../App";
-import { useNavigate } from 'solid-app-router';
+
+
 import { FaSolidLocationDot } from 'solid-icons/fa'
 import { BsCalendarDateFill } from 'solid-icons/bs'
+
 
 export const HomePost: Component<{ post: PostI }> = (props) => {
 

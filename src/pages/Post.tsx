@@ -1,7 +1,7 @@
 import { useParams } from "solid-app-router";
-import { Component, For, createSignal, onMount, Accessor, Setter, Show } from 'solid-js';
+import { Accessor, Component, createSignal, onMount, Setter, Show } from 'solid-js';
 import { styled } from 'solid-styled-components';
-import { PostI, getPostById } from '../App';
+import { getPostById, PostI } from '../App';
 import { BackButton } from "../components/BackButton";
 
 export const PostPage: Component = () => {
