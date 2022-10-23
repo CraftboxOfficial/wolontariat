@@ -1,34 +1,32 @@
-## Usage
+## Na jakie potrzeby/problem odpowiada Wasze rozwiązanie? W jaki sposób wpisuje się w temat Hack Heroes 2022?
+Nasz projekt odpowiada na problem braku ogólnopolskiego portalu z ogłoszeniami charytatywnymi. Wpisuje się w temat Hack Heroes 2022 ze względu na działania ukierunkowane na dobro społeczeństwa.
 
-Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
+---
 
-This is the reason you see a `pnpm-lock.yaml`. That being said, any package manager will work. This file can be safely be removed once you clone a template.
+## W jakich językach programowania, jakich technologiach powstała aplikacja/narzędzie?
 
-```bash
-$ npm install # or pnpm install or yarn install
-```
+Aplikację napisano w języku TypeScript przy użyciu frameworka SolidJS.
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+---
 
-## Available Scripts
+## Opisz działanie Waszej aplikacji/narzędzia
 
-In the project directory, you can run:
+Aplikacja jest dostępna pod adresem [dobrowraca.xyz](https://dobrowraca.xyz). Użytkownik może przeglądać ogłoszenia dodawane przez innych użytkowników, po zalogowaniu może dodawać własne. Dostępne są ogłoszenia w kategoriach: _oddam_, _przyjmę_ oraz _pomogę_ lub _potrzebuję pomocy_.
 
-### `npm dev` or `npm start`
+---
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Jak widzicie dalszy rozwój Waszego rozwiązania?
 
-The page will reload if you make edits.<br>
+Dalszy rozwój jest zależny od wypromowania naszego portalu. Chcielibyśmy, aby korzystali z niego użytkownicy w całej Europie.
 
-### `npm run build`
+---
 
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
+## Jakie widzicie zagrożenia/ryzyka dla Waszego rozwiązania?
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+Jednym z zagrożeń mogą być nieuczciwi użytkownicy, zamieszczający fałszywe ogłoszenia.
 
-## Deployment
+---
 
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+## Dlaczego akurat Wy powinniście wygrać?
+
+Nasza aplikacja porusza ważny problem, na który nie znaleźliśmy jeszcze żadnego rozwiązania. Jest to pierwszy portal tego typu w Polsce.
