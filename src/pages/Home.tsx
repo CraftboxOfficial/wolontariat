@@ -2,7 +2,6 @@ import { useNavigate } from 'solid-app-router';
 import { Accessor, Component, createEffect, createSignal, For, onMount, Setter, Show } from 'solid-js';
 import { styled } from 'solid-styled-components';
 import { FetchedPosts, getPosts, PostI, searchPostByTitle } from '../App';
-import { useLocations } from '../LocationsProvider';
 import { HomeMap } from './Home/HomeMap';
 
 import { LocationsProvider, useLocations } from '../LocationsProvider';
@@ -68,13 +67,13 @@ export const HomePage: Component = (props) => {
 	return (
 		<>
 			<HomeStyle>
+				<span id="page-title">DobroWraca</span>
 				<div id="top">
-
 					<div id="search-bar">
 						<input id="search-input" onInput={(e) => {
 							clearTimeout(typingTimer)
 							typingTimer = setTimeout(stoppedTyping, doneTypingInterval)
-						}} placeholder="Type here..."></input>
+						}} placeholder="Szukaj..."></input>
 					</div>
 				</div>
 
@@ -134,6 +133,13 @@ const HomeStyle = styled("div")(() => {
 			// marginLeft: "10px",
 			// marginRight: "10px"
 			overflow: "auto",
+			marginBottom: "25vh"
+		},
+
+		"#page-title": {
+			fontSize: "180%",
+			margin: "30px 0",
+			fontWeight: "bolder"
 		},
 
 		"#top": {
@@ -172,7 +178,7 @@ const HomeStyle = styled("div")(() => {
 		},
 
 		"#bottom-buttons": {
-			zIndex: "10", 
+			zIndex: "10",
 			position: "fixed",
 			bottom: "0",
 			width: "100%",
@@ -181,7 +187,7 @@ const HomeStyle = styled("div")(() => {
 			flexDirection: "row",
 			alignItems: "center",
 			justifyContent: "space-between",
-			svg:{
+			svg: {
 				fontSize: "28px"
 			},
 
