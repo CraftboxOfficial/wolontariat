@@ -114,6 +114,23 @@ export const HomePage: Component = (props) => {
 							</For>
 						</>
 					}>
+						<For each={posts()} fallback={
+							<>
+								<SkeletonPost />
+								<SkeletonPost />
+								<SkeletonPost />
+								<SkeletonPost />
+								<SkeletonPost />
+							</>
+						}>
+							{(post) => {
+								return (
+									<>
+										<HomePost class="post" post={post} />
+									</>
+								)
+							}}
+						</For>
 					</Show>
 				</div>
 				<HomeMap data={initialData} style={{ display: showMap() ? "block" : "none" }} />
