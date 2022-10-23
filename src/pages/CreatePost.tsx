@@ -1,9 +1,6 @@
-import { Accessor, Component, createSignal, onMount, Show, Setter, createEffect } from 'solid-js';
+import { Accessor, Component, createEffect, createSignal, onMount, Setter, Show } from 'solid-js';
 import { styled } from 'solid-styled-components';
-import { useNavigate } from 'solid-app-router';
-import { supabase } from "../supabaseClient";
-import { getPosts, FetchedPosts } from '../App';
-import { GoogleMap } from '../components/GoogleMap';
+import { FetchedPosts, getPosts } from '../App';
 import { BackButton } from '../components/BackButton';
 
 

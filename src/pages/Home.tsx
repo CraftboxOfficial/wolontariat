@@ -1,16 +1,17 @@
-import { Accessor, Component, createSignal, onMount, Show, Setter, For, createEffect } from 'solid-js';
-import { styled } from 'solid-styled-components';
 import { useNavigate } from 'solid-app-router';
-import { supabase } from "../supabaseClient";
-import { getPosts, FetchedPosts, PostI, searchPostByTitle } from '../App';
-import { GoogleMap } from '../components/GoogleMap';
-import { HomePost } from './Home/HomePost';
-import { MapPage } from './Map';
+import { Accessor, Component, createEffect, createSignal, For, onMount, Setter, Show } from 'solid-js';
+import { styled } from 'solid-styled-components';
+import { FetchedPosts, getPosts, PostI, searchPostByTitle } from '../App';
+import { useLocations } from '../LocationsProvider';
 import { HomeMap } from './Home/HomeMap';
+
 import { LocationsProvider, useLocations } from '../LocationsProvider';
 import { FaSolidMapLocationDot } from 'solid-icons/fa'
 import { RiSystemAddCircleFill } from 'solid-icons/ri'
 import { TiThListOutline } from 'solid-icons/ti'
+
+import { HomePost } from './Home/HomePost';
+
 
 
 
@@ -32,6 +33,7 @@ export const HomePage: Component = (props) => {
 
 
 	const [ searchInput, setSearchInput ] = createSignal("")
+	//@ts-ignore
 	const [ locations, { updateLocations } ] = useLocations();
 
 	let typingTimer: NodeJS.Timeout
@@ -53,7 +55,7 @@ export const HomePage: Component = (props) => {
 
 			searchPostByTitle(searchInput()).then((r) => {
 				console.log(r)
-				updateLocations({"data": r});
+				updateLocations({ "data": r });
 				setPosts(r)
 			})
 
@@ -76,7 +78,7 @@ export const HomePage: Component = (props) => {
 					</div>
 				</div>
 
-				<div id="posts" style={{display: showMap() ? "none" : "flex"}}>
+				<div id="posts" style={{ display: showMap() ? "none" : "flex" }}>
 					<Show when={posts().length > 0} fallback={
 						<>
 							<For each={initialData()?.data}>
