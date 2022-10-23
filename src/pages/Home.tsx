@@ -10,6 +10,7 @@ import { RiSystemAddCircleFill } from 'solid-icons/ri'
 import { TiThListOutline } from 'solid-icons/ti'
 
 import { HomePost } from './Home/HomePost';
+import { SkeletonPost } from './Home/SkeletonPost';
 
 
 
@@ -63,12 +64,30 @@ export const HomePage: Component = (props) => {
 		}
 	})
 
+	// const [ currentScroll, setCurrentScroll ] = createSignal(window.screenTop)
+
+	createEffect(() => {
+		if (showMap()) {
+			window.scrollTo(0, 0)
+		}
+	})
 
 	return (
 		<>
 			<HomeStyle>
-				<span id="page-title">DobroWraca</span>
-				<div id="top">
+				<span id="page-title" style={{ display: showMap() ? "none" : "block" }}>DobroWraca</span>
+				<div id="top" style={(() => {
+					if (showMap()) {
+						return {
+							position: "fixed",
+							top: "0"
+						}
+					} else {
+						return {
+							position: "sticky"
+						}
+					}
+				})()}>
 					<div id="search-bar">
 						<input id="search-input" onInput={(e) => {
 							clearTimeout(typingTimer)
@@ -80,11 +99,19 @@ export const HomePage: Component = (props) => {
 				<div id="posts" style={{ display: showMap() ? "none" : "flex" }}>
 					<Show when={posts().length > 0} fallback={
 						<>
-							<For each={initialData()?.data}>
+							<For each={initialData()?.data} fallback={
+								<>
+									<SkeletonPost />
+									<SkeletonPost />
+									<SkeletonPost />
+									<SkeletonPost />
+									<SkeletonPost />
+								</>
+							}>
 								{(post) => {
 									return (
 										<>
-											<HomePost post={post} />
+											<HomePost class="post" post={post} />
 										</>
 									)
 								}}
@@ -92,15 +119,6 @@ export const HomePage: Component = (props) => {
 						</>
 					}>
 					</Show>
-					<For each={posts()}>
-						{(post) => {
-							return (
-								<>
-									<HomePost post={post} />
-								</>
-							)
-						}}
-					</For>
 				</div>
 				<HomeMap data={initialData} style={{ display: showMap() ? "block" : "none" }} />
 
@@ -114,6 +132,8 @@ export const HomePage: Component = (props) => {
 }
 
 const HomeStyle = styled("div")(() => {
+
+
 	return {
 		width: "100%",
 		display: "flex",
@@ -132,14 +152,23 @@ const HomeStyle = styled("div")(() => {
 			margin: "0 10px",
 			// marginLeft: "10px",
 			// marginRight: "10px"
-			overflow: "auto",
-			marginBottom: "25vh"
+			overflow: "auto !important",
+			marginBottom: "25vh",
+
+			// ".post:hover": {
+			// 	scale: "1.1",
+			// 	transition: "scale 200ms"
+			// }
 		},
 
 		"#page-title": {
+			zIndex: "10",
+			backgroundColor: "#2B2B2B",
 			fontSize: "180%",
-			margin: "30px 0",
-			fontWeight: "bolder"
+			padding: "30px 0",
+			fontWeight: "bolder",
+			textAlign: "center",
+			width: "100%",
 		},
 
 		"#top": {
@@ -197,9 +226,15 @@ const HomeStyle = styled("div")(() => {
 				maxWidth: "80px",
 				margin: "5%",
 				borderRadius: "25%",
-				border: "none"
+				border: "none",
+				transition: "scale 100ms"
 			},
 
-		}
+			// "button:hover": {
+			// 	scale: "1.1"
+			// }
+
+		},
+
 	}
 })
