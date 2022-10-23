@@ -8,6 +8,9 @@ import { HomePost } from './Home/HomePost';
 import { MapPage } from './Map';
 import { HomeMap } from './Home/HomeMap';
 import { LocationsProvider, useLocations } from '../LocationsProvider';
+import { FaSolidMapLocationDot } from 'solid-icons/fa'
+import { RiSystemAddCircleFill } from 'solid-icons/ri'
+import { TiThListOutline } from 'solid-icons/ti'
 
 
 
@@ -101,8 +104,8 @@ export const HomePage: Component = (props) => {
 				<HomeMap data={initialData} style={{ display: showMap() ? "block" : "none" }} />
 
 				<div id='bottom-buttons'>
-					<button onClick={(e) => setShowMap((prev) => !prev)}>{showMap() ? "LIST" : "MAP"}</button>
-					<button onClick={(e) => { navigate("/create-post") }}>ADD POST</button>
+					<button onClick={(e) => setShowMap((prev) => !prev)}>{showMap() ? <TiThListOutline /> : <FaSolidMapLocationDot />}</button>
+					<button onClick={(e) => { navigate("/create-post") }}><RiSystemAddCircleFill /></button>
 				</div>
 			</HomeStyle>
 		</>
@@ -176,6 +179,9 @@ const HomeStyle = styled("div")(() => {
 			flexDirection: "row",
 			alignItems: "center",
 			justifyContent: "space-between",
+			svg:{
+				fontSize: "28px"
+			},
 
 			button: {
 				aspectRatio: "1 / 1",

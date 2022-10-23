@@ -2,8 +2,8 @@ import { Component, Show } from "solid-js";
 import { styled } from 'solid-styled-components';
 import { PostI } from "../../App";
 import { useNavigate } from 'solid-app-router';
-
-
+import { FaSolidLocationDot } from 'solid-icons/fa'
+import { BsCalendarDateFill } from 'solid-icons/bs'
 
 export const HomePost: Component<{ post: PostI }> = (props) => {
 
@@ -23,8 +23,8 @@ export const HomePost: Component<{ post: PostI }> = (props) => {
 					</div>
 					<div class="bottom">
 						<div class="left">
-							<span>Where</span>
-							<span>When</span>
+							<span><FaSolidLocationDot /> Where</span>
+							<span><BsCalendarDateFill /> {props.post.created_at !== null ? props.post.created_at.toString() : 'unknown'}</span>
 						</div>
 
 						<button onClick={(e) => {
