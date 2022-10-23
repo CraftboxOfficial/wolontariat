@@ -1,23 +1,26 @@
 import { RiSystemArrowGoBackFill } from "solid-icons/ri";
 import { Component, Show } from "solid-js";
 import { styled } from 'solid-styled-components';
+import { useNavigate } from 'solid-app-router';
 
 
 
 export const BackButton: Component = (props) => {
 
+	const navigate = useNavigate()
+
 	return (
 		<>
-			<PostStyle onClick={(e) => {
-				window.history.back()
+			<BackButtonStyle onClick={(e) => {
+				navigate("/")
 			}}>
-				<RiSystemArrowGoBackFill size={24}/>
-			</PostStyle>
+				<RiSystemArrowGoBackFill size={24} />
+			</BackButtonStyle>
 		</>
 	)
 }
 
-const PostStyle = styled("button")(() => {
+const BackButtonStyle = styled("button")(() => {
 	return {
 		minHeight: "25px",
 		minWidth: "25px",
@@ -28,6 +31,9 @@ const PostStyle = styled("button")(() => {
 		// maxWidth: "80px",
 		// margin: "5%",
 		borderRadius: "10px",
-		border: "none"
+		border: "none",
+		transition: "scale 100ms",
+
+
 	}
 })
