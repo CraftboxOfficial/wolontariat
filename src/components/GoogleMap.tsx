@@ -4,6 +4,7 @@ import { MarkerClusterer } from "@googlemaps/markerclusterer"
 import { LocationsProvider, useLocations } from '../LocationsProvider';
 import { getPosts } from '../App';
 import { styled } from 'solid-styled-components';
+import { useNavigate } from 'solid-app-router';
 const loader = new Loader({
   apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   version: "weekly",
@@ -25,7 +26,7 @@ const mapOptions: google.maps.MapOptions = {
     //style: google.maps.ZoomControlStyle.LARGE 
   },
   zoom: 7,
-  
+
 };
 
 let map: any;
@@ -33,35 +34,44 @@ let markerClusters: any;
 let autocomplete: any;
 
 export const GoogleMap = () => {
+
+  const navigate = useNavigate()
   //@ts-ignore
   const [ locations, { updateLocations } ] = useLocations();
-  const [mapLoading, setMapLoading] = createSignal(false);
+  const [ mapLoading, setMapLoading ] = createSignal(false);
 
-  const markerHandleClick = (id:Number) => {
-    const Item = locations().data.filter((i:any) => {return i.id === id})[0];
+  const markerHandleClick = (id: Number) => {
+    const Item = locations().data.filter((i: any) => { return i.id === id })[ 0 ];
     //map.setCenter({'lat': 10, "lng": 10})
+    navigate(`/post/${Item.id}`)
     console.log(Item)
   }
 
-  const addMarker = (position: any, id:any) => {
+  const addMarker = (position: any, id: number, title: string) => {
     const markerOptions: google.maps.MarkerOptions = {
       position,
       map,
       optimized: true,
-      title: id.toString()
+      title: title,
+      label: {
+        className: "map-marker",
+        text: title,
+        fontSize: "180%",
+        color: "#FFFFFF"
+      }
     }
     const marker = new google.maps.Marker(markerOptions);
-  
-    marker.addListener("click", () => {markerHandleClick(id)});
-  
+
+    marker.addListener("click", () => { markerHandleClick(id) });
+
     return marker
   }
 
 
   const loadMarkers = async (refreshMap: any) => {
     setMapLoading(true);
-    
-      loader
+
+    loader
       .load()
       .then((google) => {
         if (refreshMap) {
@@ -74,7 +84,7 @@ export const GoogleMap = () => {
         const data = locations().data;
         const markers = data.map((item: any, i: number) => {
           const position = item.geolocation;
-          const marker = addMarker(position, item.id);
+          const marker = addMarker(position, item.id, item.title);
           return marker;
         });
 
@@ -84,7 +94,7 @@ export const GoogleMap = () => {
       .catch(e => {
         console.error(e)
       });
-    }
+  }
 
   createEffect(() => {
     if (locations().length !== 0) {
@@ -102,7 +112,7 @@ export const GoogleMap = () => {
     const posts = await getPosts();
     updateLocations(posts);
     setMapLoading(true);
-    if(navigator.geolocation){
+    if (navigator.geolocation) {
       await navigator.geolocation.getCurrentPosition((position) => {
         //@ts-ignore
         mapOptions.center.lat = position.coords.latitude;
@@ -116,7 +126,7 @@ export const GoogleMap = () => {
         mapOptions.zoom = 7;
         loadMarkers(true);
       });
-    }else{
+    } else {
       loadMarkers(true);
     }
   });
